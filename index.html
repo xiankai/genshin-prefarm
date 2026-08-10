@@ -51,6 +51,31 @@
         max-width: 480px;
         width: 100%;
       }
+      /* Phones keep the single stack (below). On wider screens the four
+         calculator cards split into two independent column stacks so the
+         desktop's horizontal space isn't wasted, while the intro and the wide
+         Transient Resin calendar stay full width above and below them. Row gap
+         is 0 because each card already carries its own bottom margin, which
+         keeps one consistent vertical rhythm whether stacked or side by side. */
+      .cols {
+        display: grid;
+        gap: 0 1rem;
+      }
+      .col {
+        min-width: 0;
+      }
+      @media (min-width: 900px) {
+        .container {
+          max-width: 1040px;
+        }
+        .cols {
+          grid-template-columns: 1fr 1fr;
+          align-items: start;
+        }
+        .intro-qa {
+          max-width: 640px;
+        }
+      }
       h1 {
         font-size: 1.5rem;
         margin: 0 0 0.4rem;
@@ -816,176 +841,252 @@
         </dd>
       </dl>
 
-      <div class="card">
-        <h2 class="section-title">Current Stockpile</h2>
-        <div class="field-row">
-          <div class="field">
-            <label for="current-resin">Current Resin (0–200)</label>
-            <input
-              type="number"
-              id="current-resin"
-              min="0"
-              max="200"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
+      <div class="cols">
+        <div class="col">
+          <div class="card">
+            <h2 class="section-title">Current Stockpile</h2>
+            <div class="field-row">
+              <div class="field">
+                <label for="current-resin">Current Resin (0–200)</label>
+                <input
+                  type="number"
+                  id="current-resin"
+                  min="0"
+                  max="200"
+                  value="0"
+                  step="1"
+                  inputmode="numeric"
+                />
+              </div>
+              <div class="field">
+                <label for="current-condensed">Condensed (0–5)</label>
+                <input
+                  type="number"
+                  id="current-condensed"
+                  min="0"
+                  max="5"
+                  value="0"
+                  step="1"
+                  inputmode="numeric"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label for="server-select">Server Region</label>
+              <select id="server-select">
+                <option value="asia">Asia (UTC+8)</option>
+                <option value="europe">Europe (UTC+1)</option>
+                <option value="america">America (UTC-5)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="future-date">Future Date &amp; Time</label>
+              <input type="datetime-local" id="future-date" />
+              <div class="hint" id="tz-hint"></div>
+              <div class="presets-header">
+                <span class="presets-label">Presets</span>
+                <span
+                  class="info-icon"
+                  tabindex="0"
+                  role="img"
+                  aria-label="Note: Preselected dates are extrapolated from Genshin's past release patterns (a 42-day version cycle since 3.3). They are predictions, not official announcements, and may shift if miHoYo changes the schedule."
+                  title="Preselected dates are extrapolated from Genshin's past release patterns (a 42-day version cycle since 3.3). They are predictions, not official announcements, and may shift if miHoYo changes the schedule."
+                  aria-hidden="false"
+                  >i</span
+                >
+              </div>
+              <div class="event-buttons">
+                <button type="button" class="event-button" data-event="banner">
+                  Next Banner Date
+                </button>
+                <button type="button" class="event-button" data-event="stygian">
+                  Next Stygian Onslaught
+                </button>
+              </div>
+              <div class="event-hint" id="event-hint"></div>
+            </div>
+            <div
+              id="error"
+              class="error"
+              role="alert"
+              aria-live="assertive"
+              hidden
+            ></div>
           </div>
-          <div class="field">
-            <label for="current-condensed">Condensed (0–5)</label>
-            <input
-              type="number"
-              id="current-condensed"
-              min="0"
-              max="5"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label for="server-select">Server Region</label>
-          <select id="server-select">
-            <option value="asia">Asia (UTC+8)</option>
-            <option value="europe">Europe (UTC+1)</option>
-            <option value="america">America (UTC-5)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="future-date">Future Date &amp; Time</label>
-          <input type="datetime-local" id="future-date" />
-          <div class="hint" id="tz-hint"></div>
-          <div class="presets-header">
-            <span class="presets-label">Presets</span>
-            <span
-              class="info-icon"
-              tabindex="0"
-              role="img"
-              aria-label="Note: Preselected dates are extrapolated from Genshin's past release patterns (a 42-day version cycle since 3.3). They are predictions, not official announcements, and may shift if miHoYo changes the schedule."
-              title="Preselected dates are extrapolated from Genshin's past release patterns (a 42-day version cycle since 3.3). They are predictions, not official announcements, and may shift if miHoYo changes the schedule."
-              aria-hidden="false"
-              >i</span
-            >
-          </div>
-          <div class="event-buttons">
-            <button type="button" class="event-button" data-event="banner">
-              Next Banner Date
-            </button>
-            <button type="button" class="event-button" data-event="stygian">
-              Next Stygian Onslaught
-            </button>
-          </div>
-          <div class="event-hint" id="event-hint"></div>
-        </div>
-        <div
-          id="error"
-          class="error"
-          role="alert"
-          aria-live="assertive"
-          hidden
-        ></div>
-      </div>
 
-      <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">At that time</h2>
-        <div class="result-row">
-          <span class="result-label">Condensed Resin</span>
-          <span class="result-value" id="result-condensed">—</span>
+          <div class="card" aria-live="polite" aria-atomic="true">
+            <h2 class="section-title">At that time</h2>
+            <div class="result-row">
+              <span class="result-label">Condensed Resin</span>
+              <span class="result-value" id="result-condensed">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Leftover</span>
+              <span class="result-value" id="result-resin">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Overflow</span>
+              <span class="result-value muted" id="result-wasted">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label"
+                >Everything maxes out<span
+                  class="detail"
+                  id="detail-full"
+                ></span
+              ></span>
+              <span class="result-value stamp" id="result-full">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label"
+                >Time from now<span class="detail" id="detail-elapsed"></span
+              ></span>
+              <span class="result-value muted" id="result-elapsed">—</span>
+            </div>
+          </div>
         </div>
-        <div class="result-row">
-          <span class="result-label">Leftover</span>
-          <span class="result-value" id="result-resin">—</span>
-        </div>
-        <div class="result-row">
-          <span class="result-label">Overflow</span>
-          <span class="result-value muted" id="result-wasted">—</span>
-        </div>
-        <div class="result-row">
-          <span class="result-label"
-            >Everything maxes out<span class="detail" id="detail-full"></span
-          ></span>
-          <span class="result-value stamp" id="result-full">—</span>
-        </div>
-        <div class="result-row">
-          <span class="result-label"
-            >Time from now<span class="detail" id="detail-elapsed"></span
-          ></span>
-          <span class="result-value muted" id="result-elapsed">—</span>
-        </div>
-      </div>
+        <div class="col">
+          <div class="card" aria-live="polite" aria-atomic="true">
+            <h2 class="section-title">If you keep playing</h2>
+            <p class="tr-intro">
+              You can't stop playing while you hoard. Dailies and weekly bosses
+              eat resin — but crafting Condensed Resin drains your resin bar
+              too, so every craft covers part of the day's spending for free.
+            </p>
+            <div class="field-row">
+              <div class="field">
+                <label for="daily-spend">Daily spend (resin/day)</label>
+                <input
+                  type="number"
+                  id="daily-spend"
+                  min="0"
+                  max="1000"
+                  value="120"
+                  step="10"
+                  inputmode="numeric"
+                />
+              </div>
+              <div class="field">
+                <label for="weekly-runs">Weekly boss runs</label>
+                <input
+                  type="number"
+                  id="weekly-runs"
+                  min="0"
+                  max="21"
+                  value="3"
+                  step="1"
+                  inputmode="numeric"
+                />
+              </div>
+            </div>
+            <div class="hint">
+              Trounce Domains cost 30 resin for your first 3 clears each week,
+              60 after.
+            </div>
+            <div
+              id="spend-error"
+              class="error"
+              role="alert"
+              aria-live="assertive"
+              hidden
+            ></div>
+            <div class="result-row">
+              <span class="result-label"
+                >Banked if you hoard<span
+                  class="detail"
+                  id="detail-hoard"
+                ></span
+              ></span>
+              <span class="result-value" id="result-total-hoard">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label"
+                >After dailies<span class="detail" id="detail-dailies"></span
+              ></span>
+              <span class="result-value" id="result-after-dailies">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label"
+                >After weekly bosses<span
+                  class="detail"
+                  id="detail-weeklies"
+                ></span
+              ></span>
+              <span class="result-value" id="result-after-weeklies">—</span>
+            </div>
+            <div class="sched-note" id="spend-note"></div>
+            <h3 class="sub-title">Act before the bar caps</h3>
+            <p class="tr-intro">
+              Your resin bar stops at 200. Each Condensed craft frees 60 (8
+              hours of regen), and every 60 you spend on a domain buys another
+              8. These are the moments you'd hit 200 if you did nothing.
+            </p>
+            <div id="schedule"></div>
+            <div class="sched-note" id="schedule-note"></div>
+          </div>
 
-      <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">If you keep playing</h2>
-        <p class="tr-intro">
-          You can't stop playing while you hoard. Dailies and weekly bosses eat
-          resin — but crafting Condensed Resin drains your resin bar too, so
-          every craft covers part of the day's spending for free.
-        </p>
-        <div class="field-row">
-          <div class="field">
-            <label for="daily-spend">Daily spend (resin/day)</label>
-            <input
-              type="number"
-              id="daily-spend"
-              min="0"
-              max="1000"
-              value="120"
-              step="10"
-              inputmode="numeric"
-            />
+          <div class="card" aria-live="polite" aria-atomic="true">
+            <h2 class="section-title">Companionship EXP</h2>
+            <p class="tr-intro">
+              This is the one that raises Friendship Level. Characters living in
+              your Serenitea Pot generate it, and it stops dead at 500 — so bank
+              it before a new character lands and pour it straight into them.
+              Same hourly tick as Realm Currency.
+            </p>
+            <div class="field-row">
+              <div class="field">
+                <label for="current-companion">Current (0–500)</label>
+                <input
+                  type="number"
+                  id="current-companion"
+                  min="0"
+                  max="500"
+                  value="0"
+                  step="5"
+                  inputmode="numeric"
+                />
+              </div>
+              <div class="field">
+                <label for="companion-rate">Rate (per hour)</label>
+                <input
+                  type="number"
+                  id="companion-rate"
+                  min="0"
+                  max="5"
+                  value="5"
+                  step="1"
+                  inputmode="numeric"
+                />
+              </div>
+            </div>
+            <div class="hint">
+              5/hr is the ceiling, at 12,000 Adeptal Energy. Storage caps at 500
+              at Trust Rank 10, with room for 8 companions from Trust Rank 9.
+            </div>
+            <div
+              id="companion-error"
+              class="error"
+              role="alert"
+              aria-live="assertive"
+              hidden
+            ></div>
+            <div class="result-row">
+              <span class="result-label"
+                >At that time<span
+                  class="detail"
+                  id="detail-companion-stored"
+                ></span
+              ></span>
+              <span class="result-value" id="result-companion">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Overflow</span>
+              <span class="result-value muted" id="result-companion-wasted"
+                >—</span
+              >
+            </div>
           </div>
-          <div class="field">
-            <label for="weekly-runs">Weekly boss runs</label>
-            <input
-              type="number"
-              id="weekly-runs"
-              min="0"
-              max="21"
-              value="3"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
         </div>
-        <div class="hint">
-          Trounce Domains cost 30 resin for your first 3 clears each week, 60
-          after.
-        </div>
-        <div
-          id="spend-error"
-          class="error"
-          role="alert"
-          aria-live="assertive"
-          hidden
-        ></div>
-        <div class="result-row">
-          <span class="result-label"
-            >Banked if you hoard<span class="detail" id="detail-hoard"></span
-          ></span>
-          <span class="result-value" id="result-total-hoard">—</span>
-        </div>
-        <div class="result-row">
-          <span class="result-label"
-            >After dailies<span class="detail" id="detail-dailies"></span
-          ></span>
-          <span class="result-value" id="result-after-dailies">—</span>
-        </div>
-        <div class="result-row">
-          <span class="result-label"
-            >After weekly bosses<span class="detail" id="detail-weeklies"></span
-          ></span>
-          <span class="result-value" id="result-after-weeklies">—</span>
-        </div>
-        <div class="sched-note" id="spend-note"></div>
-        <h3 class="sub-title">Act before the bar caps</h3>
-        <p class="tr-intro">
-          Your resin bar stops at 200. Each Condensed craft frees 60 (8 hours of
-          regen), and every 60 you spend on a domain buys another 8. These are
-          the moments you'd hit 200 if you did nothing.
-        </p>
-        <div id="schedule"></div>
-        <div class="sched-note" id="schedule-note"></div>
       </div>
 
       <div class="card" aria-live="polite" aria-atomic="true">
@@ -1039,66 +1140,6 @@
         </div>
         <div class="cal-legend" id="tr-legend"></div>
         <div class="tr-action" id="tr-total"></div>
-      </div>
-
-      <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">Companionship EXP</h2>
-        <p class="tr-intro">
-          This is the one that raises Friendship Level. Characters living in
-          your Serenitea Pot generate it, and it stops dead at 500 — so bank it
-          before a new character lands and pour it straight into them. Same
-          hourly tick as Realm Currency.
-        </p>
-        <div class="field-row">
-          <div class="field">
-            <label for="current-companion">Current (0–500)</label>
-            <input
-              type="number"
-              id="current-companion"
-              min="0"
-              max="500"
-              value="0"
-              step="5"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field">
-            <label for="companion-rate">Rate (per hour)</label>
-            <input
-              type="number"
-              id="companion-rate"
-              min="0"
-              max="5"
-              value="5"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-        </div>
-        <div class="hint">
-          5/hr is the ceiling, at 12,000 Adeptal Energy. Storage caps at 500 at
-          Trust Rank 10, with room for 8 companions from Trust Rank 9.
-        </div>
-        <div
-          id="companion-error"
-          class="error"
-          role="alert"
-          aria-live="assertive"
-          hidden
-        ></div>
-        <div class="result-row">
-          <span class="result-label"
-            >At that time<span
-              class="detail"
-              id="detail-companion-stored"
-            ></span
-          ></span>
-          <span class="result-value" id="result-companion">—</span>
-        </div>
-        <div class="result-row">
-          <span class="result-label">Overflow</span>
-          <span class="result-value muted" id="result-companion-wasted">—</span>
-        </div>
       </div>
 
       <footer>
