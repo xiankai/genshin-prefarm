@@ -6,7 +6,7 @@
     <title>Genshin Resin Minmaxer</title>
     <meta
       name="description"
-      content="Helper to maximize saving your resin for when it matters."
+      content="A timeline of your resin and Companionship EXP against the banners and Stygian Onslaughts you're hoarding for."
     />
 
     <style>
@@ -19,7 +19,6 @@
         --muted: #6b5c43;
         --border: #c8b898;
         --danger: #8c2020;
-        --keep: #41704f;
         --keep-text: #3a5c44;
       }
       .sr-only {
@@ -48,33 +47,8 @@
         padding: 2rem 1rem;
       }
       .container {
-        max-width: 480px;
+        max-width: 900px;
         width: 100%;
-      }
-      /* Phones keep the single stack (below). On wider screens the four
-         calculator cards split into two independent column stacks so the
-         desktop's horizontal space isn't wasted, while the intro and the wide
-         Transient Resin calendar stay full width above and below them. Row gap
-         is 0 because each card already carries its own bottom margin, which
-         keeps one consistent vertical rhythm whether stacked or side by side. */
-      .cols {
-        display: grid;
-        gap: 0 1rem;
-      }
-      .col {
-        min-width: 0;
-      }
-      @media (min-width: 900px) {
-        .container {
-          max-width: 1040px;
-        }
-        .cols {
-          grid-template-columns: 1fr 1fr;
-          align-items: start;
-        }
-        .intro-qa {
-          max-width: 640px;
-        }
       }
       h1 {
         font-size: 1.5rem;
@@ -84,26 +58,12 @@
         font-weight: 500;
         letter-spacing: 0.02em;
       }
-      .intro-qa {
-        margin: 0 0 1.5rem;
+      .intro {
+        margin: 0 0 1.25rem;
         color: var(--muted);
         font-size: 0.85rem;
         line-height: 1.6;
-      }
-      .intro-qa dt {
-        font-weight: 600;
-        color: var(--accent);
-        margin-top: 0.6rem;
-      }
-      .intro-qa dt:first-child {
-        margin-top: 0;
-      }
-      .intro-qa dd {
-        margin: 0;
-      }
-      .intro-qa ul {
-        margin: 0.2rem 0 0;
-        padding-left: 1.2rem;
+        text-align: center;
       }
       footer {
         margin-top: 1.5rem;
@@ -135,7 +95,7 @@
         color: var(--muted);
         margin-bottom: 0.4rem;
       }
-      input,
+      input[type="number"],
       select {
         width: 100%;
         padding: 0.6rem 0.75rem;
@@ -146,6 +106,10 @@
         font-size: 1rem;
         font-family: inherit;
         color-scheme: light;
+      }
+      input:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
       }
       input:focus,
       select:focus {
@@ -167,165 +131,44 @@
         background: var(--card);
         font-weight: normal;
       }
-      .field + .field {
-        margin-top: 1rem;
-      }
-      .field-row {
-        display: flex;
+      /* Inputs wrap to as many per row as fit, so the same markup reads on a
+         phone and on a desktop without a second set of breakpoints. */
+      .fields {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
         gap: 0.75rem;
       }
-      .field-row .field {
-        flex: 1 1 0;
+      .field {
         min-width: 0;
-        margin-top: 0;
       }
-      .field-row + .field {
-        margin-top: 1rem;
-      }
-      .presets-header {
+      /* The trounce field is optional, so its checkbox rides in the label and
+         the row stays the same shape as every other input beside it. */
+      .label-check {
         display: flex;
         align-items: center;
         gap: 0.4rem;
-        margin-top: 0.9rem;
-        margin-bottom: 0.4rem;
-      }
-      .presets-label {
-        font-size: 0.85rem;
-        color: var(--muted);
-      }
-      .event-buttons {
-        display: flex;
-        gap: 0.4rem;
-      }
-      .event-button {
-        flex: 1 1 0;
-        min-width: 0;
-        padding: 0.55rem 0.4rem;
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--text);
-        font-size: 0.85rem;
-        font-family: inherit;
         cursor: pointer;
-        text-align: center;
-        line-height: 1.2;
-        transition:
-          border-color 0.12s,
-          color 0.12s,
-          background 0.12s;
       }
-      .event-button:hover {
-        border-color: var(--accent);
-        color: var(--accent-bright);
-      }
-      .event-button:focus {
-        outline: 2px solid var(--accent);
-        outline-offset: 1px;
-        border-color: var(--accent);
-      }
-      .event-button.active {
-        background: var(--accent);
-        border-color: var(--accent-bright);
-        color: var(--bg);
-        font-weight: 600;
-      }
-      .info-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.4rem;
-        height: 1.4rem;
-        border-radius: 50%;
-        background: var(--bg);
-        border: 1px solid var(--border);
-        color: var(--muted);
-        font-size: 0.8rem;
-        font-style: italic;
-        font-family: Georgia, serif;
-        cursor: help;
+      input[type="checkbox"] {
+        width: 1.05rem;
+        height: 1.05rem;
+        margin: 0;
+        accent-color: var(--accent);
         flex-shrink: 0;
-        user-select: none;
-      }
-      .info-icon:hover {
-        color: var(--accent-bright);
-        border-color: var(--accent);
-      }
-      .info-icon:focus {
-        outline: 2px solid var(--accent);
-        outline-offset: 1px;
       }
       .hint {
         font-size: 0.75rem;
         color: var(--muted);
-        margin-top: 0.3rem;
-      }
-      .event-hint {
-        margin-top: 0.6rem;
-        padding: 0.6rem 0.75rem;
-        background: var(--bg);
-        border: 1px solid var(--accent);
-        border-radius: 6px;
-        color: var(--accent-bright);
-        font-size: 1rem;
-        font-weight: 600;
-        text-align: center;
-        font-variant-numeric: tabular-nums;
-        line-height: 1.3;
-      }
-      .event-hint:empty {
-        display: none;
-      }
-      .result-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        padding: 0.6rem 0;
-        border-bottom: 1px solid var(--border);
-      }
-      .result-row:last-child {
-        border-bottom: none;
-      }
-      .result-label {
-        color: var(--muted);
-        font-size: 0.9rem;
-        min-width: 0;
-      }
-      .result-value {
-        font-size: 1.25rem;
-        font-weight: 400;
-        color: var(--accent-bright);
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-        flex-shrink: 0;
-        padding-left: 0.5rem;
-      }
-      .result-value.muted {
-        color: var(--muted);
-        font-weight: 400;
-        font-size: 1rem;
-      }
-      .result-value.danger {
-        color: var(--danger);
-        font-size: 1rem;
-      }
-      .result-value.stamp {
-        font-size: 1rem;
-      }
-      .result-label .detail {
-        display: block;
-        font-size: 0.7rem;
-        margin-top: 0.15rem;
-        line-height: 1.35;
-        font-variant-numeric: tabular-nums;
-      }
-      .result-label .detail:empty {
-        display: none;
+        margin-top: 0.5rem;
+        line-height: 1.45;
       }
       .error {
         color: var(--danger);
         font-size: 0.85rem;
         margin-top: 0.5rem;
+      }
+      .error[hidden] {
+        display: none;
       }
       .section-title {
         font-size: 0.7rem;
@@ -335,399 +178,215 @@
         margin: 0 0 0.75rem;
         font-weight: 500;
       }
-      .tr-intro {
+      .blurb {
         margin: 0 0 1rem;
         font-size: 0.8rem;
         line-height: 1.5;
         color: var(--muted);
       }
-      .tr-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--accent-bright);
-      }
-      .tr-meta {
-        font-size: 0.7rem;
-        color: var(--muted);
-        white-space: nowrap;
-        font-variant-numeric: tabular-nums;
-      }
-      .tr-sub {
-        font-size: 0.72rem;
-        color: var(--muted);
-        margin-top: 0.15rem;
-      }
-      .tr-action {
-        margin-top: 0.5rem;
-        padding: 0.5rem 0.65rem;
-        background: var(--bg);
-        border: 1px solid var(--accent);
-        border-radius: 6px;
-        color: var(--accent-bright);
-        font-size: 0.9rem;
-        font-weight: 400;
-        line-height: 1.35;
-        font-variant-numeric: tabular-nums;
-      }
-      .tr-action:empty {
-        display: none;
-      }
-      .sub-title {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--muted);
-        margin: 1.1rem 0 0.1rem;
-        font-weight: 500;
-      }
-      .sched-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        gap: 0.5rem;
-        padding: 0.35rem 0;
-        border-bottom: 1px solid var(--border);
-        font-size: 0.82rem;
-      }
-      .sched-row:last-child {
-        border-bottom: none;
-      }
-      .sched-act {
-        color: var(--muted);
-      }
-      .sched-when {
-        color: var(--accent-bright);
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-      }
-      .sched-row.craft .sched-when {
-        color: var(--keep-text);
-      }
-      .sched-note {
-        font-size: 0.75rem;
-        color: var(--muted);
-        margin-top: 0.5rem;
-        line-height: 1.45;
-      }
 
-      /* --- Transient Resin calendar (one column per day, sources as rows) --- */
-      /* Days are a fixed, deliberately tight width — just wide enough for a
-         weekday initial. The chart therefore grows with the range and scrolls
-         sideways rather than squeezing days together. */
-      .cal-frame {
+      /* --- Timeline ---------------------------------------------------- */
+      /* Everything is positioned as a percentage of the date range, so a chart
+         always fits its card at any width and there is nothing to scroll. Days
+         are never drawn individually; the grid is one line per Monday, which is
+         when the weekly reset lands. */
+      .tl {
+        --lab: 5.5rem;
         position: relative;
+        font-variant-numeric: tabular-nums;
       }
-      /* Fades in only while there's more chart off to the right, so the scroll
-         is discoverable without waiting for an overlay scrollbar to appear. */
-      .cal-frame::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1.25rem;
-        background: linear-gradient(
-          to right,
-          rgba(237, 227, 206, 0),
-          var(--card)
-        );
-        opacity: 0;
-        transition: opacity 0.15s;
-        pointer-events: none;
-      }
-      .cal-frame.more-right::after {
-        opacity: 1;
-      }
-      /* The platform scrollbar here is an overlay one: it reserves no layout
-         space and fades out when idle, and no amount of ::-webkit-scrollbar
-         styling makes it persist. So it's hidden and replaced with the drawn
-         bar below, which is always visible and behaves identically everywhere. */
-      .cal-scroll {
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scrollbar-width: none;
-      }
-      .cal-scroll::-webkit-scrollbar {
-        display: none;
-      }
-      .cal-scroll:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 2px;
-      }
-      .cal-sb {
-        position: relative;
-        height: 0.6rem;
-        margin-top: 0.5rem;
-        background: rgba(107, 92, 67, 0.16);
-        border-radius: 999px;
-        cursor: pointer;
-      }
-      .cal-sb[hidden] {
-        display: none;
-      }
-      .cal-sb-thumb {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        min-width: 1.5rem;
-        background: var(--muted);
-        border-radius: 999px;
-        cursor: grab;
-        touch-action: none;
-      }
-      .cal-sb-thumb:hover {
-        background: var(--accent);
-      }
-      .cal-sb-thumb.dragging {
-        background: var(--accent-bright);
-        cursor: grabbing;
-      }
-
-      /* Explicit paging controls, a week at a time. They double as an indicator:
-         a disabled arrow means that end of the range is already on screen. */
-      .cal-controls {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-top: 0.4rem;
-      }
-      .cal-controls[hidden] {
-        display: none;
-      }
-      .cal-controls .hint {
-        margin-top: 0;
-      }
-      .cal-nav {
-        display: flex;
-        gap: 0.3rem;
-        flex-shrink: 0;
-      }
-      .cal-arrow {
-        width: 2rem;
-        height: 1.8rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--accent-bright);
-        font-family: inherit;
-        font-size: 1.1rem;
-        line-height: 1;
-        cursor: pointer;
-        transition:
-          border-color 0.12s,
-          opacity 0.12s;
-      }
-      .cal-arrow:hover:not(:disabled) {
-        border-color: var(--accent);
-      }
-      .cal-arrow:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 1px;
-      }
-      .cal-arrow:disabled {
-        opacity: 0.3;
-        cursor: default;
-      }
-      .cal {
-        --lab: 5.9rem;
-        --day-w: 1rem;
-        width: max-content;
-      }
-      .cal-row {
+      .tl-row {
         display: grid;
-        grid-template-columns: var(--lab) auto;
+        grid-template-columns: var(--lab) 1fr;
         align-items: center;
       }
-      /* Stays put while the days scroll past, so rows never lose their name.
-         Stretched to the full row height so it masks the bars underneath. */
-      .cal-label {
-        position: sticky;
-        left: 0;
-        z-index: 2;
-        align-self: stretch;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        background: var(--card);
-        border-right: 1px solid var(--border);
+      .tl-label {
         padding-right: 0.5rem;
-        font-size: 0.7rem;
-        line-height: 1.2;
-        color: var(--accent-bright);
-        font-weight: 600;
         text-align: right;
-        white-space: nowrap;
+        font-size: 0.68rem;
+        line-height: 1.15;
+        font-weight: 600;
+        color: var(--accent-bright);
         overflow: hidden;
       }
-      .cal-track {
+      .tl-track {
         position: relative;
-        display: grid;
-        grid-template-columns: repeat(var(--days), var(--day-w));
-        height: 1.3rem;
+        min-width: 0;
       }
-      .cal-col {
-        grid-row: 1;
-        border-left: 1px solid rgba(107, 92, 67, 0.16);
+      /* Event names ride above the chart on as many lanes as it takes for them
+         not to overlap — lane assignment is measured after layout, because the
+         width of a pill isn't knowable before it is rendered. */
+      .tl-marks .tl-track {
+        height: 1.15rem;
       }
-      .cal-col.week {
-        border-left: 1px solid rgba(107, 92, 67, 0.55);
-      }
-      .cal-col.weekend {
-        background: rgba(107, 92, 67, 0.035);
-      }
-      .cal-col.today {
-        background: rgba(122, 80, 21, 0.08);
-      }
-
-      /* The target date rides on the chart, pinned to its own line. */
-      .cal-pin .cal-track {
-        height: 1.2rem;
-      }
-      .cal-pin-label {
+      .tl-pill {
         position: absolute;
-        top: 0.1rem;
-        z-index: 3;
+        top: 0;
         padding: 0.05rem 0.3rem;
         border-radius: 3px;
-        color: var(--bg);
-        font-size: 0.62rem;
+        font-size: 0.6rem;
         font-weight: 600;
         white-space: nowrap;
+        color: var(--bg);
       }
-      .cal-pin-label.target {
+      .tl-pill.banner {
         background: var(--accent-bright);
       }
-      .cal-pin-label.now {
+      .tl-pill.stygian {
+        background: var(--danger);
+      }
+      .tl-pill.now {
         background: var(--muted);
       }
-
-      /* Date strip above the grid: one label per week, plus weekday initials. */
-      .cal-dates {
-        height: 0.9rem;
+      .tl-dates .tl-track {
+        height: 0.95rem;
       }
-      .cal-dates .cal-track {
-        height: 0.9rem;
-        display: block;
-      }
-      .cal-date {
+      .tl-date {
         position: absolute;
         bottom: 0;
+        padding-left: 0.15rem;
         font-size: 0.6rem;
         color: var(--muted);
         white-space: nowrap;
-        padding-left: 0.15rem;
-        font-variant-numeric: tabular-nums;
-      }
-      .cal-dow .cal-track {
-        height: 0.8rem;
-      }
-      .cal-dow i {
-        grid-row: 1;
-        font-size: 0.55rem;
-        font-style: normal;
-        text-align: center;
-        color: var(--muted);
-        line-height: 0.8rem;
-      }
-      .cal-dow i.week {
-        color: var(--accent);
-        font-weight: 700;
       }
 
-      .cal-body {
+      .tl-body {
         position: relative;
       }
-      .cal-lines {
+      .tl-grid {
         position: absolute;
         left: var(--lab);
         right: 0;
         top: 0;
         bottom: 0;
-        z-index: 1;
         pointer-events: none;
+        z-index: 2;
       }
-      .cal-line {
+      .tl-week {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-left: 1px solid rgba(107, 92, 67, 0.2);
+      }
+      .tl-line {
         position: absolute;
         top: 0;
         bottom: 0;
       }
-      .cal-line.now {
-        border-left: 2px dashed var(--muted);
-      }
-      .cal-line.target {
+      .tl-line.banner {
         border-left: 2px solid var(--accent-bright);
       }
-      .cal-group + .cal-group {
-        margin-top: 0.55rem;
+      .tl-line.stygian {
+        border-left: 2px dashed var(--danger);
       }
-      /* Each copy is drawn in two halves: the days you can still claim it, then
-         the days it's yours before it dies. Both carry their own label, so the
-         two dates that matter are on the chart rather than in a tooltip. */
-      .cal-seg {
-        grid-row: 1;
-        align-self: center;
+      .tl-line.now {
+        border-left: 2px dotted var(--muted);
+      }
+
+      /* The headline bar: one row, split into the stretch you'd reach by pure
+         hoarding and the extra stretches each kind of spending buys you. */
+      .tl-bar .tl-track {
+        height: 1.9rem;
+      }
+      .tl-seg {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
         display: flex;
         align-items: center;
-        height: 0.95rem;
-        border: 1px solid var(--bar);
-        overflow: hidden;
-        padding: 0 0.2rem;
-        font-size: 0.55rem;
-        font-style: normal;
+        height: 1.45rem;
+        padding: 0 0.3rem;
+        border: 1px solid var(--seg);
+        border-radius: 3px;
+        font-size: 0.6rem;
         line-height: 1;
         white-space: nowrap;
+        overflow: hidden;
+        z-index: 1;
       }
-      .cal-seg.claim {
-        justify-content: flex-start;
-        background: var(--bar);
+      .tl-seg.solid {
+        background: var(--seg);
+        color: var(--bg);
+      }
+      /* Striped rather than another solid colour: these stretches are earned by
+         spending, so they shouldn't read as banked resin at a glance. */
+      .tl-seg.striped {
+        background-color: var(--seg-soft);
+        background-image: repeating-linear-gradient(
+          45deg,
+          var(--seg) 0 4px,
+          transparent 4px 9px
+        );
+        color: var(--text);
+      }
+      .tl-seg.mid {
+        border-radius: 0;
+      }
+      .tl-seg.first {
+        border-radius: 3px 0 0 3px;
+      }
+      .tl-seg.last {
+        border-radius: 0 3px 3px 0;
+      }
+      /* A dashed edge means the bar runs off the end of the chart. */
+      .tl-seg.clip-right {
+        border-right-style: dashed;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      .tl-seg.clip-left {
+        border-left-style: dashed;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+      .tl-empty {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 0;
+        font-size: 0.62rem;
+        font-style: italic;
+        color: var(--muted);
+      }
+
+      /* Transient Resin lanes: one copy drawn in two halves. */
+      .tl-lane .tl-track {
+        height: 1.3rem;
+      }
+      .tl-lane .tl-seg {
+        height: 1rem;
+        padding: 0 0.2rem;
+        font-size: 0.55rem;
+      }
+      .tl-lane .tl-seg.claim {
+        background: var(--seg);
         color: var(--bg);
         border-radius: 3px 0 0 3px;
       }
-      /* Hollow rather than hatched: diagonal stripes behind 0.55rem text at a
-         9px bar height are unreadable, and opacity is already carrying the
-         can-it-reach-your-target axis. The border keeps the period colour. */
-      .cal-seg.hold {
+      /* Hollow rather than hatched: the bar is too short for stripes to read,
+         and the stripes are already spoken for by the resin bar above. */
+      .tl-lane .tl-seg.hold {
         justify-content: flex-end;
         border-left: 0;
         border-radius: 0 3px 3px 0;
         background: transparent;
         color: var(--muted);
       }
-      /* Solid backing so the date stays crisp over the day gridlines. */
-      .cal-seg-label {
+      .tl-seg-label {
         background: var(--card);
         padding: 0 0.15rem;
         border-radius: 2px;
       }
-      /* Copies that can't reach your target still get drawn — they just step back
-         so the ones that count read first. */
-      .cal-seg.faded {
-        opacity: 0.4;
+      /* Copies that can't survive to the next banner still get drawn — they
+         just step back so the ones that count read first. */
+      .tl-seg.faded {
+        opacity: 0.3;
       }
-      .cal-seg.clip-right {
-        border-right-style: dashed;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-      }
-      .cal-seg.clip-left {
-        border-left-style: dashed;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-      }
-      .cal-none {
-        grid-row: 1;
-        align-self: center;
-        font-size: 0.62rem;
-        font-style: italic;
-        color: var(--muted);
+      .tl-group + .tl-group {
+        margin-top: 0.5rem;
       }
 
-      .cal-legend {
+      .tl-legend {
         margin-top: 0.9rem;
         border-top: 1px solid var(--border);
         padding-top: 0.7rem;
@@ -752,7 +411,7 @@
         font-weight: 400;
       }
       .leg-note {
-        margin: 0.55rem 0 0;
+        margin-top: 0.55rem;
       }
       .leg-keys {
         display: flex;
@@ -767,44 +426,90 @@
       }
       .leg-swatch {
         width: 1.1rem;
-        height: 0.5rem;
+        height: 0.55rem;
         border-radius: 3px;
-        border: 1px solid var(--muted);
+        border: 1px solid var(--seg, var(--muted));
+        background: var(--seg, transparent);
         flex-shrink: 0;
       }
-      .leg-swatch.keep {
-        background: var(--keep);
-        border-color: var(--keep);
+      .leg-swatch.striped {
+        background-color: var(--seg-soft);
+        background-image: repeating-linear-gradient(
+          45deg,
+          var(--seg) 0 3px,
+          transparent 3px 7px
+        );
       }
-      .leg-swatch.hold {
-        border-color: var(--keep);
+      .leg-swatch.hollow {
         background: transparent;
       }
-      .leg-swatch.faded {
-        background: var(--keep);
-        border-color: var(--keep);
-        opacity: 0.4;
-      }
-      .leg-swatch.target {
+      .leg-swatch.line {
         width: 0;
-        height: 0.8rem;
+        height: 0.85rem;
         border: 0;
+        border-radius: 0;
         border-left: 2px solid var(--accent-bright);
-        border-radius: 0;
       }
-      .leg-swatch.today {
-        width: 0;
-        height: 0.8rem;
-        border: 0;
-        border-left: 2px dashed var(--muted);
-        border-radius: 0;
+      .leg-swatch.line.stygian {
+        border-left: 2px dashed var(--danger);
       }
-      @media (max-width: 420px) {
-        .cal {
-          --lab: 5rem;
+
+      /* The chart's caption: the dates the bar ends on, spelled out. */
+      .readout {
+        margin-top: 0.9rem;
+        border-top: 1px solid var(--border);
+      }
+      .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.82rem;
+      }
+      .readout-row:last-child {
+        border-bottom: none;
+      }
+      .readout-key {
+        color: var(--muted);
+        min-width: 0;
+      }
+      .readout-val {
+        color: var(--accent-bright);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .readout-val.good {
+        color: var(--keep-text);
+      }
+      .readout-val.bad {
+        color: var(--danger);
+      }
+      .verdict {
+        margin-top: 0.6rem;
+        padding: 0.5rem 0.65rem;
+        background: var(--bg);
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        color: var(--accent-bright);
+        font-size: 0.85rem;
+        line-height: 1.4;
+      }
+      .verdict:empty {
+        display: none;
+      }
+
+      @media (max-width: 560px) {
+        body {
+          padding: 1.25rem 0.75rem;
         }
-        .cal-label {
-          font-size: 0.62rem;
+        .tl {
+          --lab: 4.2rem;
+        }
+        .tl-label {
+          font-size: 0.6rem;
         }
       }
     </style>
@@ -812,334 +517,151 @@
   <body>
     <div class="container">
       <h1>Genshin Resin Minmaxer</h1>
-      <dl class="intro-qa">
-        <dt>What is this?</dt>
-        <dd>A tool to minmax your resin so it's ready when it counts.</dd>
-        <dt>Why hoard?</dt>
-        <dd>
-          New character banners introduce a new boss to farm. Stygian Onslaught
-          gives bonus artifacts for its first 10 days.
-        </dd>
-        <dt>What does it show?</dt>
-        <dd>
-          <ul>
-            <li>Condensed resin — when to stop spending and start crafting</li>
-            <li>The exact times to act before your resin bar caps out</li>
-            <li>
-              What's left once you've paid for dailies and weekly bosses along
-              the way
-            </li>
-            <li>
-              Transient Resin — a timeline of every copy you can grab and how
-              long each one stays valid
-            </li>
-            <li>
-              Companionship EXP — full by the time a new character lands, ready
-              to pour into them
-            </li>
-          </ul>
-        </dd>
-      </dl>
+      <p class="intro">
+        How far your resin stretches before it stops paying you — drawn against
+        the banners and Stygian Onslaughts you're hoarding for.
+      </p>
 
-      <div class="cols">
-        <div class="col">
-          <div class="card">
-            <h2 class="section-title">Current Stockpile</h2>
-            <div class="field-row">
-              <div class="field">
-                <label for="current-resin">Current Resin (0–200)</label>
-                <input
-                  type="number"
-                  id="current-resin"
-                  min="0"
-                  max="200"
-                  value="0"
-                  step="1"
-                  inputmode="numeric"
-                />
-              </div>
-              <div class="field">
-                <label for="current-condensed">Condensed (0–5)</label>
-                <input
-                  type="number"
-                  id="current-condensed"
-                  min="0"
-                  max="5"
-                  value="0"
-                  step="1"
-                  inputmode="numeric"
-                />
-              </div>
-            </div>
-            <div class="field">
-              <label for="server-select">Server Region</label>
-              <select id="server-select">
-                <option value="asia">Asia (UTC+8)</option>
-                <option value="europe">Europe (UTC+1)</option>
-                <option value="america">America (UTC-5)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="future-date">Future Date &amp; Time</label>
-              <input type="datetime-local" id="future-date" />
-              <div class="hint" id="tz-hint"></div>
-              <div class="presets-header">
-                <span class="presets-label">Presets</span>
-                <span
-                  class="info-icon"
-                  tabindex="0"
-                  role="img"
-                  aria-label="Note: Preselected dates are extrapolated from Genshin's past release patterns (a 42-day version cycle since 3.3). They are predictions, not official announcements, and may shift if miHoYo changes the schedule."
-                  title="Preselected dates are extrapolated from Genshin's past release patterns (a 42-day version cycle since 3.3). They are predictions, not official announcements, and may shift if miHoYo changes the schedule."
-                  aria-hidden="false"
-                  >i</span
-                >
-              </div>
-              <div class="event-buttons">
-                <button type="button" class="event-button" data-event="banner">
-                  Next Banner Date
-                </button>
-                <button type="button" class="event-button" data-event="stygian">
-                  Next Stygian Onslaught
-                </button>
-              </div>
-              <div class="event-hint" id="event-hint"></div>
-            </div>
-            <div
-              id="error"
-              class="error"
-              role="alert"
-              aria-live="assertive"
-              hidden
-            ></div>
+      <div class="card">
+        <h2 class="section-title">Your stockpile</h2>
+        <div class="fields">
+          <div class="field">
+            <label for="server-select">Server region</label>
+            <select id="server-select">
+              <option value="asia">Asia (UTC+8)</option>
+              <option value="europe">Europe (UTC+1)</option>
+              <option value="america">America (UTC-5)</option>
+            </select>
           </div>
-
-          <div class="card" aria-live="polite" aria-atomic="true">
-            <h2 class="section-title">At that time</h2>
-            <div class="result-row">
-              <span class="result-label">Condensed Resin</span>
-              <span class="result-value" id="result-condensed">—</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label">Leftover</span>
-              <span class="result-value" id="result-resin">—</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label">Overflow</span>
-              <span class="result-value muted" id="result-wasted">—</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label"
-                >Everything maxes out<span
-                  class="detail"
-                  id="detail-full"
-                ></span
-              ></span>
-              <span class="result-value stamp" id="result-full">—</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label"
-                >Time from now<span class="detail" id="detail-elapsed"></span
-              ></span>
-              <span class="result-value muted" id="result-elapsed">—</span>
-            </div>
+          <div class="field">
+            <label for="current-resin">Current resin (0–200)</label>
+            <input
+              type="number"
+              id="current-resin"
+              min="0"
+              max="200"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="current-condensed">Condensed held (0–5)</label>
+            <input
+              type="number"
+              id="current-condensed"
+              min="0"
+              max="5"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="daily-spend">Daily spend (resin/day)</label>
+            <input
+              type="number"
+              id="daily-spend"
+              min="0"
+              max="1000"
+              value="120"
+              step="10"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label class="label-check" for="weekly-runs">
+              <input type="checkbox" id="trounce-on" checked />
+              Trounce runs/week
+            </label>
+            <input
+              type="number"
+              id="weekly-runs"
+              min="0"
+              max="21"
+              value="3"
+              step="1"
+              inputmode="numeric"
+            />
           </div>
         </div>
-        <div class="col">
-          <div class="card" aria-live="polite" aria-atomic="true">
-            <h2 class="section-title">If you keep playing</h2>
-            <p class="tr-intro">
-              You can't stop playing while you hoard. Dailies and weekly bosses
-              eat resin — but crafting Condensed Resin drains your resin bar
-              too, so every craft covers part of the day's spending for free.
-            </p>
-            <div class="field-row">
-              <div class="field">
-                <label for="daily-spend">Daily spend (resin/day)</label>
-                <input
-                  type="number"
-                  id="daily-spend"
-                  min="0"
-                  max="1000"
-                  value="120"
-                  step="10"
-                  inputmode="numeric"
-                />
-              </div>
-              <div class="field">
-                <label for="weekly-runs">Weekly boss runs</label>
-                <input
-                  type="number"
-                  id="weekly-runs"
-                  min="0"
-                  max="21"
-                  value="3"
-                  step="1"
-                  inputmode="numeric"
-                />
-              </div>
-            </div>
-            <div class="hint">
-              Trounce Domains cost 30 resin for your first 3 clears each week,
-              60 after.
-            </div>
-            <div
-              id="spend-error"
-              class="error"
-              role="alert"
-              aria-live="assertive"
-              hidden
-            ></div>
-            <div class="result-row">
-              <span class="result-label"
-                >Banked if you hoard<span
-                  class="detail"
-                  id="detail-hoard"
-                ></span
-              ></span>
-              <span class="result-value" id="result-total-hoard">—</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label"
-                >After dailies<span class="detail" id="detail-dailies"></span
-              ></span>
-              <span class="result-value" id="result-after-dailies">—</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label"
-                >After weekly bosses<span
-                  class="detail"
-                  id="detail-weeklies"
-                ></span
-              ></span>
-              <span class="result-value" id="result-after-weeklies">—</span>
-            </div>
-            <div class="sched-note" id="spend-note"></div>
-            <h3 class="sub-title">Act before the bar caps</h3>
-            <p class="tr-intro">
-              Your resin bar stops at 200. Each Condensed craft frees 60 (8
-              hours of regen), and every 60 you spend on a domain buys another
-              8. These are the moments you'd hit 200 if you did nothing.
-            </p>
-            <div id="schedule"></div>
-            <div class="sched-note" id="schedule-note"></div>
-          </div>
-
-          <div class="card" aria-live="polite" aria-atomic="true">
-            <h2 class="section-title">Companionship EXP</h2>
-            <p class="tr-intro">
-              This is the one that raises Friendship Level. Characters living in
-              your Serenitea Pot generate it, and it stops dead at 500 — so bank
-              it before a new character lands and pour it straight into them.
-              Same hourly tick as Realm Currency.
-            </p>
-            <div class="field-row">
-              <div class="field">
-                <label for="current-companion">Current (0–500)</label>
-                <input
-                  type="number"
-                  id="current-companion"
-                  min="0"
-                  max="500"
-                  value="0"
-                  step="5"
-                  inputmode="numeric"
-                />
-              </div>
-              <div class="field">
-                <label for="companion-rate">Rate (per hour)</label>
-                <input
-                  type="number"
-                  id="companion-rate"
-                  min="0"
-                  max="5"
-                  value="5"
-                  step="1"
-                  inputmode="numeric"
-                />
-              </div>
-            </div>
-            <div class="hint">
-              5/hr is the ceiling, at 12,000 Adeptal Energy. Storage caps at 500
-              at Trust Rank 10, with room for 8 companions from Trust Rank 9.
-            </div>
-            <div
-              id="companion-error"
-              class="error"
-              role="alert"
-              aria-live="assertive"
-              hidden
-            ></div>
-            <div class="result-row">
-              <span class="result-label"
-                >At that time<span
-                  class="detail"
-                  id="detail-companion-stored"
-                ></span
-              ></span>
-              <span class="result-value" id="result-companion">—</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label">Overflow</span>
-              <span class="result-value muted" id="result-companion-wasted"
-                >—</span
-              >
-            </div>
-          </div>
+        <div class="hint" id="tz-hint"></div>
+        <div class="hint">
+          Resin regenerates 1 per 8 minutes — 180 a day. Trounce Domains cost 30
+          resin for your first 3 clears each week, 60 after.
         </div>
+        <div
+          id="error"
+          class="error"
+          role="alert"
+          aria-live="assertive"
+          hidden
+        ></div>
       </div>
 
       <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">Sources of Transient Resin</h2>
-        <p class="tr-intro">
-          Transient Resin is stored as an item — it doesn't count against your
-          200 cap until used, so each one banks +60 resin on top of your
-          stockpile. Every copy dies a fortnight after the Monday of the week
-          you got it, whatever the source. Each bar is one copy in two halves:
-          solid while you can still claim it, hollow for the days it's then
-          yours before it expires. It assumes you claim as early as you can, so
-          last week's copy still counts — it's in your bag until this Monday
-          plus seven. Faded bars can't reach your target line.
+        <h2 class="section-title">Resin</h2>
+        <p class="blurb">
+          The bar runs from now to the moment everything is full — 200 in the
+          bar and every Condensed slot used — which is when regen starts going
+          in the bin. Solid is what pure hoarding gets you; each striped stretch
+          is the extra time your spending buys back. Below it, every copy of
+          Transient Resin you can still grab: solid while it's claimable, hollow
+          for the days it's yours before it expires.
         </p>
-        <div class="cal-frame" id="cal-frame">
-          <div
-            class="cal-scroll"
-            id="cal-scroll"
-            tabindex="0"
-            role="group"
-            aria-label="Transient Resin calendar — scrolls sideways"
-          >
-            <div class="cal" id="tr-calendar"></div>
+        <div class="tl" id="resin-tl"></div>
+        <div class="readout" id="resin-readout"></div>
+        <div class="verdict" id="resin-verdict"></div>
+        <div class="tl-legend" id="resin-legend"></div>
+      </div>
+
+      <div class="card" aria-live="polite" aria-atomic="true">
+        <h2 class="section-title">Companionship EXP</h2>
+        <p class="blurb">
+          The one that raises Friendship Level. Characters living in your
+          Serenitea Pot generate it and it stops dead at 500 — so bank it before
+          a new character lands and pour it straight into them.
+        </p>
+        <div class="fields">
+          <div class="field">
+            <label for="current-companion">Current (0–500)</label>
+            <input
+              type="number"
+              id="current-companion"
+              min="0"
+              max="500"
+              value="0"
+              step="5"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="companion-rate">Rate (per hour)</label>
+            <input
+              type="number"
+              id="companion-rate"
+              min="0"
+              max="5"
+              value="5"
+              step="1"
+              inputmode="numeric"
+            />
           </div>
         </div>
-        <div class="cal-sb" id="cal-sb" aria-hidden="true" hidden>
-          <i class="cal-sb-thumb" id="cal-sb-thumb"></i>
+        <div class="hint">
+          5/hr is the ceiling, at 12,000 Adeptal Energy. Storage caps at 500 at
+          Trust Rank 10.
         </div>
-        <div class="cal-controls" id="cal-controls" hidden>
-          <div class="hint" id="cal-hint"></div>
-          <div class="cal-nav">
-            <button
-              type="button"
-              class="cal-arrow"
-              id="cal-left"
-              aria-controls="cal-scroll"
-              aria-label="Scroll the calendar back one week"
-            >
-              &lsaquo;
-            </button>
-            <button
-              type="button"
-              class="cal-arrow"
-              id="cal-right"
-              aria-controls="cal-scroll"
-              aria-label="Scroll the calendar forward one week"
-            >
-              &rsaquo;
-            </button>
-          </div>
-        </div>
-        <div class="cal-legend" id="tr-legend"></div>
-        <div class="tr-action" id="tr-total"></div>
+        <div
+          id="companion-error"
+          class="error"
+          role="alert"
+          aria-live="assertive"
+          hidden
+        ></div>
+        <div class="tl" id="companion-tl"></div>
+        <div class="readout" id="companion-readout"></div>
+        <div class="verdict" id="companion-verdict"></div>
       </div>
 
       <footer>
@@ -1158,16 +680,17 @@
       const RESIN_CAP = 200;
       const RESIN_PER_CONDENSED = 60;
       const MAX_CONDENSED = 5;
+      const RESIN_PER_DAY = 1440 / MIN_PER_RESIN; // 180
 
-      // Trounce Domain (weekly boss) run, at the discounted first-3-per-week rate.
+      // Trounce Domains are discounted for the first three clears each week.
       const WEEKLY_BOSS_RESIN = 30;
+      const WEEKLY_BOSS_RESIN_FULL = 60;
+      const WEEKLY_BOSS_DISCOUNTED = 3;
       const DAILY_SPEND_DEFAULT = 120;
       const WEEKLY_RUNS_DEFAULT = 3;
 
-      // Companionship EXP is the thing that actually raises a character's
-      // Friendship Level. It accrues in the pot from the characters you have
-      // living there — a different pot with much smaller numbers than Realm
-      // Currency: 5/hr at 12,000 Adeptal Energy, capped at 500 at Trust Rank 10.
+      // Companionship EXP is what actually raises a character's Friendship
+      // Level: 5/hr at 12,000 Adeptal Energy, capped at 500 at Trust Rank 10.
       const COMPANION_CAP = 500;
       const COMPANION_RATE_DEFAULT = 5;
 
@@ -1177,24 +700,22 @@
         america: { label: "America", offset: -5 },
       };
 
-      // Anchor: Luna I version Phase 1 start, server-local date.
-      // Every Genshin version since 3.3 has been a 42-day cycle starting on Wednesday.
+      // Anchor: Luna I version Phase 1 start, server-local date. Every Genshin
+      // version since 3.3 has been a 42-day cycle starting on a Wednesday.
       const VERSION_ANCHOR_DATE = "2025-09-10";
       const VERSION_PERIOD_DAYS = 42;
 
       // Each event has one or more occurrences per 42-day version cycle.
-      // offsetDays = days from version Phase 1 start; hour = server-local hour unless utc: true.
+      // offsetDays = days from Phase 1 start; hour = server-local unless utc.
       const EVENTS = {
         banner: {
           occurrences: [
-            { offsetDays: 0, hour: 3, utc: true }, // Phase 1: simultaneous at 03:00 UTC
-            { offsetDays: 20, hour: 18 }, // Phase 2: 18:00 server local time
+            { name: "Banner P1", offsetDays: 0, hour: 3, utc: true },
+            { name: "Banner P2", offsetDays: 20, hour: 18 },
           ],
         },
         stygian: {
-          occurrences: [
-            { offsetDays: 7, hour: 10 }, // Stygian Onslaught: 10:00 server local time
-          ],
+          occurrences: [{ name: "Stygian", offsetDays: 7, hour: 10 }],
         },
       };
 
@@ -1203,40 +724,27 @@
       // Expiry belongs to the item, not the source: a copy dies seven days after
       // the Monday *following* the one you got it on. Every copy obtained in the
       // same week therefore expires at the same moment — that week's Monday plus
-      // 14 days — no matter which day you claimed it. Claiming early doesn't move
-      // the deadline, it just buys you more days to spend it in, so the window
-      // below is exact rather than an assumption.
-      //
-      // maxAtOnce: most copies that can be valid simultaneously at the target.
-      // A weekly source with a fortnight-long window always overlaps itself once,
-      // so two of its copies can be in hand at any moment.
+      // 14 days — no matter which day you claimed it.
       const TRANSIENT_RESIN = 60;
-      // Seven days from the Monday after you get it — i.e. a fortnight from the
-      // Monday of the week you got it, whichever day that was.
       const TRANSIENT_EXPIRY_DAYS = 14;
 
-      // "To Temper Thyself and Journey Far" runs back-to-back 12-week cycles that
-      // begin on a Monday: 2025-12-01, 2026-02-23, 2026-05-18 and 2026-08-10 are
-      // all exactly 84 days apart. Anchored on the earliest known one so the
-      // cycle containing today is always reachable going forwards.
+      // "To Temper Thyself and Journey Far" runs back-to-back 12-week cycles
+      // that begin on a Monday: 2025-12-01, 2026-02-23, 2026-05-18 and
+      // 2026-08-10 are all exactly 84 days apart.
       const EVENT_CYCLE_ANCHOR = "2025-12-01";
       const EVENT_CYCLE_WEEKS = 12;
       // Transient Resin comes from the Tempered in Practice box, which opens the
-      // week after your eighth weekly training goal — so weeks 9-12 of the cycle
-      // if you clear one every week. Narrow this range if it turns out to be
-      // fewer weeks; nothing else needs touching.
+      // week after your eighth weekly training goal — so weeks 9-12 of the cycle.
       const EVENT_RESIN_WEEKS = [9, 12];
-      // A weekly training goal needs five daily goals, so the box can't be opened
-      // before the fifth day of the week — Friday, leaving Saturday and Sunday.
-      // This shortens how long you can hold the copy but not when it dies: expiry
-      // is pinned to the week, not to the day you claimed it.
+      // A weekly training goal needs five daily goals, so the box can't be
+      // opened before the fifth day of the week — Friday.
       const EVENT_CLAIM_FROM_DAY = 5;
-      // One colour per weekly copy, cycled. Four is enough that neighbours never
-      // repeat in a lane, whether a source packs into one lane or two. All are
-      // dark enough for the pale bar text and for the parchment behind them.
-      // How far either side of the useful window to draw faded context copies.
+      // How far before today to keep drawing copies, for cadence.
       const CONTEXT_WEEKS = 2;
 
+      // One colour per week a copy comes from, cycled. Four is enough that
+      // neighbours never repeat in a lane, whether a source packs into one lane
+      // or two.
       const PERIOD_COLORS = [
         [65, 112, 79],
         [63, 107, 134],
@@ -1244,9 +752,23 @@
         [107, 106, 47],
       ];
 
-      // Breathing room either side of the calendar's two marker lines.
+      // Each stretch of the headline bars gets its own hue: what you already
+      // have, then one per kind of spending that extends it.
+      const SEG_COLORS = {
+        hoard: [63, 107, 134],
+        daily: [168, 104, 31],
+        trounce: [122, 74, 107],
+        companion: [65, 112, 79],
+      };
+
+      // Breathing room either side of the charted range.
       const PAD_DAYS_BEFORE = 1;
       const PAD_DAYS_AFTER = 2;
+      // Never draw less than a fortnight (so a nearly-full stockpile still has a
+      // readable axis) and never more than this, however slowly the bar fills.
+      const MIN_HORIZON_DAYS = 14;
+      const MAX_HORIZON_DAYS = 150;
+
       const MONTHS = [
         "Jan",
         "Feb",
@@ -1262,6 +784,7 @@
         "Dec",
       ];
       const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
       const TRANSIENT_SOURCES = [
         {
           key: "realm",
@@ -1299,86 +822,55 @@
       ];
 
       const COOKIE_SERVER = "gscServer";
-      const COOKIE_EVENT = "gscEvent";
+      const COOKIE_INPUTS = "gscInputs";
 
+      const selectServer = document.getElementById("server-select");
       const inputCurrent = document.getElementById("current-resin");
       const inputCurrentCondensed =
         document.getElementById("current-condensed");
-      const inputFuture = document.getElementById("future-date");
-      const selectServer = document.getElementById("server-select");
-      const tzHint = document.getElementById("tz-hint");
-      const eventHint = document.getElementById("event-hint");
-      const errorEl = document.getElementById("error");
-      const resResin = document.getElementById("result-resin");
-      const resCondensed = document.getElementById("result-condensed");
-      const resWasted = document.getElementById("result-wasted");
-      const resElapsed = document.getElementById("result-elapsed");
-      const detailElapsed = document.getElementById("detail-elapsed");
-      const resFull = document.getElementById("result-full");
-      const detailFull = document.getElementById("detail-full");
-      const trCalendar = document.getElementById("tr-calendar");
-      const calScroll = document.getElementById("cal-scroll");
-      const calFrame = document.getElementById("cal-frame");
-      const calControls = document.getElementById("cal-controls");
-      const calSb = document.getElementById("cal-sb");
-      const calThumb = document.getElementById("cal-sb-thumb");
-      const calLeft = document.getElementById("cal-left");
-      const calRight = document.getElementById("cal-right");
-      const calHint = document.getElementById("cal-hint");
-      const trLegend = document.getElementById("tr-legend");
-      const trTotal = document.getElementById("tr-total");
-
       const inputDailySpend = document.getElementById("daily-spend");
+      const inputTrounceOn = document.getElementById("trounce-on");
       const inputWeeklyRuns = document.getElementById("weekly-runs");
-      const spendError = document.getElementById("spend-error");
-      const resHoard = document.getElementById("result-total-hoard");
-      const resAfterDailies = document.getElementById("result-after-dailies");
-      const resAfterWeeklies = document.getElementById("result-after-weeklies");
-      const spendNote = document.getElementById("spend-note");
-      const schedule = document.getElementById("schedule");
-      const scheduleNote = document.getElementById("schedule-note");
-      const detailHoard = document.getElementById("detail-hoard");
-      const detailDailies = document.getElementById("detail-dailies");
-      const detailWeeklies = document.getElementById("detail-weeklies");
-
       const inputCompanion = document.getElementById("current-companion");
       const inputCompanionRate = document.getElementById("companion-rate");
-      const companionError = document.getElementById("companion-error");
-      const resCompanion = document.getElementById("result-companion");
-      const resCompanionWasted = document.getElementById(
-        "result-companion-wasted",
-      );
-      const detailCompanionStored = document.getElementById(
-        "detail-companion-stored",
-      );
 
-      const eventButtons = Array.from(
-        document.querySelectorAll(".event-button"),
-      );
+      const tzHint = document.getElementById("tz-hint");
+      const errorEl = document.getElementById("error");
+      const companionError = document.getElementById("companion-error");
+
+      const resinTl = document.getElementById("resin-tl");
+      const resinReadout = document.getElementById("resin-readout");
+      const resinVerdict = document.getElementById("resin-verdict");
+      const resinLegend = document.getElementById("resin-legend");
+      const companionTl = document.getElementById("companion-tl");
+      const companionReadout = document.getElementById("companion-readout");
+      const companionVerdict = document.getElementById("companion-verdict");
+
+      // ---- small helpers ------------------------------------------------
 
       function pad(n) {
         return String(n).padStart(2, "0");
       }
 
-      // Returns the Monday (in local time) that is the earliest safe week to obtain a
-      // Transient Resin so it doesn't expire before `target`. `maxDays` is the validity
-      // window: 14 for Realm Depot (2 weeks from this week's Monday), 7 for IT (1 week).
-      function transientHoardFrom(target, maxDays) {
-        const threshold = new Date(target.getTime() - maxDays * 86400000);
-        // Round up to the nearest Monday (getDay: 0=Sun, 1=Mon … 6=Sat)
-        const day = threshold.getDay();
-        const daysToMonday = day === 0 ? 1 : day === 1 ? 0 : 8 - day;
-        const monday = new Date(threshold.getTime() + daysToMonday * 86400000);
-        monday.setHours(0, 0, 0, 0);
-        // Snapping back to midnight can land the Monday *before* the threshold,
-        // so a copy grabbed that week would expire just short of the target.
-        if (monday.getTime() + maxDays * 86400000 < target.getTime()) {
-          monday.setDate(monday.getDate() + 7);
-        }
-        return monday;
+      function el(tag, cls) {
+        const node = document.createElement(tag);
+        if (cls) node.className = cls;
+        return node;
       }
 
-      // Compact form for the timeline's dense date column.
+      function rgb(triple) {
+        return `rgb(${triple[0]}, ${triple[1]}, ${triple[2]})`;
+      }
+
+      function rgba(triple, alpha) {
+        return `rgba(${triple[0]}, ${triple[1]}, ${triple[2]}, ${alpha})`;
+      }
+
+      function paint(node, triple) {
+        node.style.setProperty("--seg", rgb(triple));
+        node.style.setProperty("--seg-soft", rgba(triple, 0.16));
+      }
+
       function fmtDay(date) {
         return `${date.getDate()} ${MONTHS[date.getMonth()]}`;
       }
@@ -1400,42 +892,203 @@
         return Math.round(n).toLocaleString("en-US");
       }
 
-      function readNumber(input, fallback) {
-        return input.value === "" ? fallback : Number(input.value);
+      function formatElapsed(minutes) {
+        const total = Math.round(minutes);
+        if (total < 1) return "less than a minute";
+        const days = Math.floor(total / 1440);
+        const hours = Math.floor((total % 1440) / 60);
+        const mins = total % 60;
+        const parts = [];
+        if (days) parts.push(`${days}d`);
+        if (hours) parts.push(`${hours}h`);
+        // Minutes are noise once we're talking in days.
+        if (mins && !days) parts.push(`${mins}m`);
+        return parts.join(" ") || "less than a minute";
       }
 
-      // Show a section-local error and blank that section's numbers, so stale
-      // values can't sit next to a complaint about the input that made them.
-      function showError(el, message, values = [], details = []) {
-        el.textContent = message;
-        el.hidden = false;
-        for (const v of values) v.textContent = "—";
-        for (const d of details) d.textContent = "";
+      function formatGap(ms) {
+        return formatElapsed(Math.abs(ms) / 60000);
+      }
+
+      function startOfDay(date) {
+        const d = new Date(date.getTime());
+        d.setHours(0, 0, 0, 0);
+        return d;
+      }
+
+      function addDaysLocal(date, days) {
+        const d = new Date(date.getTime());
+        d.setDate(d.getDate() + days);
+        return d;
+      }
+
+      function addMs(date, ms) {
+        return new Date(date.getTime() + ms);
       }
 
       // Monday (local, midnight) of the week containing `date`.
       function mondayOfWeek(date) {
-        const d = new Date(date.getTime());
-        d.setHours(0, 0, 0, 0);
+        const d = startOfDay(date);
         const day = d.getDay(); // 0=Sun … 6=Sat
-        const back = day === 0 ? 6 : day - 1;
-        d.setDate(d.getDate() - back);
+        d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
         return d;
       }
 
+      function readNumber(input, fallback) {
+        return input.value === "" ? fallback : Number(input.value);
+      }
+
+      function tzSuffix(offset) {
+        const sign = offset >= 0 ? "+" : "-";
+        return `${sign}${pad(Math.abs(offset))}:00`;
+      }
+
+      function addDays(yyyyMmDd, days) {
+        const [y, m, d] = yyyyMmDd.split("-").map(Number);
+        const dt = new Date(Date.UTC(y, m - 1, d));
+        dt.setUTCDate(dt.getUTCDate() + days);
+        return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+      }
+
+      // ---- version events ------------------------------------------------
+
+      // Every occurrence of an event falling in [from, to], in order. Versions
+      // are a fixed 42-day cycle, so this is the anchor plus whole periods.
+      function eventOccurrences(eventKey, server, from, to) {
+        const event = EVENTS[eventKey];
+        const tz = tzSuffix(SERVERS[server].offset);
+        const periodMs = VERSION_PERIOD_DAYS * 86400000;
+        const out = [];
+        for (const occ of event.occurrences) {
+          const firstYmd = addDays(VERSION_ANCHOR_DATE, occ.offsetDays);
+          const first = new Date(
+            `${firstYmd}T${pad(occ.hour)}:00:00${occ.utc ? "+00:00" : tz}`,
+          );
+          const startCycle = Math.max(
+            0,
+            Math.ceil((from.getTime() - first.getTime()) / periodMs),
+          );
+          for (let n = startCycle; ; n += 1) {
+            const date = addMs(first, n * periodMs);
+            if (date > to) break;
+            out.push({ key: eventKey, name: occ.name, date });
+          }
+        }
+        return out.sort((a, b) => a.date - b.date);
+      }
+
+      // The soonest occurrence of each named occurrence, so the chart can
+      // guarantee every marker line appears at least once.
+      function nextOccurrences(server, now) {
+        const horizon = addMs(now, 2 * VERSION_PERIOD_DAYS * 86400000);
+        const out = [];
+        for (const key of Object.keys(EVENTS)) {
+          const all = eventOccurrences(key, server, now, horizon);
+          for (const occ of EVENTS[key].occurrences) {
+            const found = all.find((o) => o.name === occ.name);
+            if (found) out.push(found);
+          }
+        }
+        return out;
+      }
+
+      function nextBanner(server, now) {
+        return eventOccurrences(
+          "banner",
+          server,
+          now,
+          addMs(now, 2 * VERSION_PERIOD_DAYS * 86400000),
+        )[0];
+      }
+
+      function detectClosestServer() {
+        const browserOffsetHr = -new Date().getTimezoneOffset() / 60;
+        let closest = "asia";
+        let minDiff = Infinity;
+        for (const [key, value] of Object.entries(SERVERS)) {
+          const diff = Math.abs(value.offset - browserOffsetHr);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closest = key;
+          }
+        }
+        return closest;
+      }
+
+      // ---- resin & companionship maths -----------------------------------
+
+      function weeklyBossCost(runs) {
+        const discounted = Math.min(runs, WEEKLY_BOSS_DISCOUNTED);
+        return (
+          discounted * WEEKLY_BOSS_RESIN +
+          (runs - discounted) * WEEKLY_BOSS_RESIN_FULL
+        );
+      }
+
+      // When your storage runs out of room, under three increasingly realistic
+      // assumptions. Headroom is everything you can still bank — the empty part
+      // of the resin bar plus every unused Condensed slot — and it fills at
+      // regen minus whatever you spend, so spending pushes the ceiling further
+      // away rather than bringing it closer.
+      function resinPlan(current, condensed, daily, trounceRuns, now) {
+        const headroom =
+          RESIN_CAP -
+          current +
+          (MAX_CONDENSED - condensed) * RESIN_PER_CONDENSED;
+        const trouncePerDay = weeklyBossCost(trounceRuns) / 7;
+        const stages = [
+          { key: "hoard", label: "hoarding", rate: RESIN_PER_DAY },
+          {
+            key: "daily",
+            label: `${fmtNum(daily)}/day`,
+            rate: RESIN_PER_DAY - daily,
+          },
+          {
+            key: "trounce",
+            label: `${trounceRuns}× trounce`,
+            rate: RESIN_PER_DAY - daily - trouncePerDay,
+          },
+        ];
+        for (const stage of stages) {
+          stage.spend = RESIN_PER_DAY - stage.rate;
+          stage.days = stage.rate > 0 ? headroom / stage.rate : Infinity;
+          stage.at = stage.rate > 0 ? addMs(now, stage.days * 86400000) : null;
+        }
+        return { headroom, slots: MAX_CONDENSED - condensed, stages };
+      }
+
+      // Tubby pays out on each hour mark, so what matters is how many marks you
+      // cross rather than how many whole hours elapse.
+      function companionPlan(current, rate, now) {
+        if (current >= COMPANION_CAP) return { already: true, at: now };
+        if (rate <= 0) return { at: null };
+        const payouts = Math.ceil((COMPANION_CAP - current) / rate);
+        const firstTick = new Date(now.getTime());
+        firstTick.setMinutes(0, 0, 0);
+        firstTick.setHours(firstTick.getHours() + 1);
+        return {
+          payouts,
+          at: addMs(firstTick, (payouts - 1) * 3600000),
+        };
+      }
+
+      // ---- Transient Resin -------------------------------------------------
+
       // Imaginarium Theater runs one season per calendar month, opening on the
-      // 1st. You pick when in the month to clear it, and claiming earlier than you
-      // need to only shortens the copy's life — so for each month take the
-      // earliest week that still survives to the target, falling back to the last
-      // week of the month when none of them do. Because a late claim in one month
-      // and an early one in the next land days apart, two can be in hand at once.
-      function monthlyClaimMondays(target, now, expiryDays) {
+      // 1st. Claiming earlier than you need to only shortens the copy's life —
+      // so for each month take the earliest week that still survives to the
+      // reference date, falling back to the last week of the month when none do.
+      function monthlyClaimMondays(target, now, expiryDays, until) {
         const from = addDaysLocal(mondayOfWeek(now), -CONTEXT_WEEKS * 7);
-        const until = addDaysLocal(mondayOfWeek(target), CONTEXT_WEEKS * 7);
+        const lastMonday = mondayOfWeek(until);
         const out = [];
 
         let month = new Date(from.getFullYear(), from.getMonth(), 1);
-        const lastMonth = new Date(until.getFullYear(), until.getMonth(), 1);
+        const lastMonth = new Date(
+          lastMonday.getFullYear(),
+          lastMonday.getMonth(),
+          1,
+        );
         while (month <= lastMonth) {
           const monthEnd = new Date(
             month.getFullYear(),
@@ -1457,7 +1110,7 @@
           // Deliberately not de-duplicated: the week straddling a month boundary
           // can host two different seasons' clears, which is how you end up
           // holding two of these at once.
-          if (pick && pick >= from && pick <= until) out.push(pick);
+          if (pick && pick >= from && pick <= lastMonday) out.push(pick);
           month = new Date(month.getFullYear(), month.getMonth() + 1, 1);
         }
         return out;
@@ -1482,8 +1135,8 @@
         return week >= activeWeeks[0] && week <= activeWeeks[1];
       }
 
-      // The stretch of resin-paying weeks that hasn't finished yet, so the legend
-      // can say when the event is actually worth checking.
+      // The stretch of resin-paying weeks that hasn't finished yet, so the
+      // legend can say when the event is actually worth checking.
       function eventResinWindow(from, activeWeeks) {
         const anchor = mondayOfWeek(new Date(`${EVENT_CYCLE_ANCHOR}T00:00:00`));
         const [first, last] = activeWeeks;
@@ -1501,10 +1154,11 @@
         return null;
       }
 
-      // Every chance to grab a copy of this source between now and the target,
-      // with the validity window each one would give you. `keep` marks the copies
-      // that are still valid at the target — the only ones worth hoarding.
-      function transientOpportunities(source, target, now = new Date()) {
+      // Every chance to grab a copy of this source across the charted range,
+      // with the validity window each one would give you. `keep` marks the
+      // copies still valid at `target` — the next banner — which are the only
+      // ones worth hoarding.
+      function transientOpportunities(source, target, now, until) {
         const weekMs = 7 * 86400000;
         // Some sources can't be redeemed until partway through their week.
         const claimOffset = (source.claimFromDay || 1) - 1;
@@ -1512,20 +1166,17 @@
         const mondays = [];
 
         if (source.monthly) {
-          mondays.push(...monthlyClaimMondays(target, now, source.expiryDays));
+          mondays.push(
+            ...monthlyClaimMondays(target, now, source.expiryDays, until),
+          );
         } else {
           const inPlay = (monday) =>
             !source.activeWeeks || isEventResinWeek(monday, source.activeWeeks);
-
-          // Two weeks either side of the range that matters, no further. Anything
-          // outside the useful window is drawn faded purely to show the cadence,
-          // and letting it chase a distant payout week would stretch the chart
-          // for no benefit.
           const from = addDaysLocal(thisMonday, -CONTEXT_WEEKS * 7);
-          const until = addDaysLocal(mondayOfWeek(target), CONTEXT_WEEKS * 7);
+          const lastMonday = mondayOfWeek(until);
           for (
             let monday = from;
-            monday <= until;
+            monday <= lastMonday;
             monday = addDaysLocal(monday, 7)
           ) {
             if (inPlay(monday)) mondays.push(monday);
@@ -1543,7 +1194,6 @@
               period: Math.round(
                 (monday.getTime() - thisMonday.getTime()) / weekMs,
               ),
-              start: available < now ? now : available,
               alreadyHeld: available < now,
               // Everything claimed in a week shares one deadline, so the week's
               // Monday is the honest basis for the expiry.
@@ -1553,7 +1203,7 @@
             };
           })
           // Kept rather than dropped: a copy that's already dead, or that can't
-          // be redeemed until after the target, is drawn faded for context.
+          // be redeemed until after the banner, is drawn faded for context.
           .map((op) => ({
             ...op,
             context:
@@ -1564,10 +1214,9 @@
                   : null,
           }));
 
-        // Of the windows that reach the target, only the last few can be held
-        // at the same time — take the latest ones.
-        // Strictly greater: a copy expiring at the very moment of the target is
-        // already gone by then.
+        // Of the windows that reach the banner, only the last few can be held at
+        // the same time — take the latest ones. Strictly greater: a copy expiring
+        // at the very moment of the banner is already gone by then.
         for (const op of ops
           .filter((o) => !o.context && o.expiry > target)
           .slice(-source.maxAtOnce)) {
@@ -1576,287 +1225,257 @@
         return ops;
       }
 
-      // Single source of truth for every "there's more chart" cue: the hint, the
-      // right-hand fade, and whether each arrow can still do anything.
-      function updateCalControls() {
-        const max = calScroll.scrollWidth - calScroll.clientWidth;
-        const overflows = max > 1;
-        const left = calScroll.scrollLeft;
+      // ---- timeline scaffolding -------------------------------------------
 
-        calControls.hidden = !overflows;
-        calSb.hidden = !overflows;
-        calHint.textContent = overflows
-          ? "Wider than the card — drag the bar or step a week at a time."
-          : "";
-        calFrame.classList.toggle("more-right", max - left > 2);
-        calLeft.disabled = left <= 1;
-        calRight.disabled = left >= max - 1;
+      // A chart is a shared date range plus rows. Everything inside is placed as
+      // a percentage of that range, so the chart fits whatever width it is given.
+      function buildTimeline(host, range, events, now) {
+        host.innerHTML = "";
+        const from = range.start.getTime();
+        const span = range.end.getTime() - from;
+        const rawPct = (date) => ((date.getTime() - from) / span) * 100;
+        const pct = (date) => Math.min(100, Math.max(0, rawPct(date)));
 
-        if (!overflows) return;
-        // Thumb width is the visible fraction; it then slides across whatever
-        // track space that fraction leaves over.
-        const visible = (calScroll.clientWidth / calScroll.scrollWidth) * 100;
-        calThumb.style.width = `${visible}%`;
-        calThumb.style.left = `${(left / max) * (100 - visible)}%`;
-      }
-
-      let sbDrag = null;
-
-      function beginThumbDrag(event) {
-        sbDrag = {
-          x: event.clientX,
-          from: calScroll.scrollLeft,
-          // Content moves further than the thumb, in proportion.
-          ratio: calScroll.scrollWidth / calSb.clientWidth,
+        const makeRow = (labelText, cls) => {
+          const row = el("div", cls ? `tl-row ${cls}` : "tl-row");
+          const label = el("div", "tl-label");
+          label.textContent = labelText || "";
+          const track = el("div", "tl-track");
+          row.append(label, track);
+          return { row, track };
         };
-        calThumb.classList.add("dragging");
-        calThumb.setPointerCapture(event.pointerId);
-        event.preventDefault();
+
+        const marks = makeRow("", "tl-marks");
+        const dates = makeRow("", "tl-dates");
+        const body = el("div", "tl-body");
+        const grid = el("div", "tl-grid");
+        body.appendChild(grid);
+        host.append(marks.row, dates.row, body);
+
+        // How wide the plot actually is, so text can be fitted in pixels rather
+        // than in percentages — the same 6% of the track is a comfortable label
+        // on a desktop and an illegible sliver on a phone.
+        const trackPx = dates.track.clientWidth || 600;
+        const fits = (text, widthPct) =>
+          (widthPct / 100) * trackPx > text.length * 4.4 + 8;
+
+        // Mondays: the weekly reset, and the only gridline worth drawing. Labels
+        // thin out until they stop running into each other.
+        const pxPerWeek = (7 / (span / 86400000)) * trackPx;
+        const labelEvery = Math.max(1, Math.ceil(46 / pxPerWeek));
+        let index = 0;
+        for (
+          let monday = mondayOfWeek(range.start);
+          monday <= range.end;
+          monday = addDaysLocal(monday, 7), index += 1
+        ) {
+          if (monday < range.start) continue;
+          const line = el("i", "tl-week");
+          line.style.left = `${pct(monday)}%`;
+          grid.appendChild(line);
+          // Skip anything too near the right edge — the text would overflow.
+          if (index % labelEvery !== 0 || rawPct(monday) > 94) continue;
+          const label = el("span", "tl-date");
+          label.style.left = `${pct(monday)}%`;
+          label.textContent = fmtDay(monday);
+          dates.track.appendChild(label);
+        }
+
+        const addLine = (date, cls) => {
+          const line = el("i", `tl-line ${cls}`);
+          line.style.left = `${pct(date)}%`;
+          grid.appendChild(line);
+        };
+        const addPill = (date, cls, text) => {
+          const pill = el("span", `tl-pill ${cls}`);
+          pill.textContent = text;
+          // Anchor from the right near the end of the range so the last pill
+          // can't spill out of the card.
+          if (rawPct(date) > 78) pill.style.right = `${100 - pct(date)}%`;
+          else pill.style.left = `${pct(date)}%`;
+          marks.track.appendChild(pill);
+        };
+
+        addLine(now, "now");
+        addPill(now, "now", "Now");
+        for (const event of events) {
+          addLine(event.date, event.key);
+          addPill(
+            event.date,
+            event.key,
+            `${event.name} · ${fmtDay(event.date)}`,
+          );
+        }
+
+        return {
+          pct,
+          rawPct,
+          fits,
+          marksTrack: marks.track,
+          addRow(labelText, cls) {
+            const { row, track } = makeRow(labelText, cls);
+            body.appendChild(row);
+            return track;
+          },
+          addGroup() {
+            const group = el("div", "tl-group");
+            body.appendChild(group);
+            return {
+              addRow(labelText, cls) {
+                const { row, track } = makeRow(labelText, cls);
+                group.appendChild(row);
+                return track;
+              },
+            };
+          },
+        };
       }
 
-      function endThumbDrag() {
-        sbDrag = null;
-        calThumb.classList.remove("dragging");
+      // Pills can't be positioned before they're measured, so stack them onto as
+      // few lanes as they'll fit on once the browser has laid them out.
+      function layoutMarks(track) {
+        const pills = Array.from(track.children);
+        if (!pills.length) return;
+        const base = track.getBoundingClientRect();
+        const laneEnds = [];
+        for (const pill of pills) {
+          const box = pill.getBoundingClientRect();
+          const left = box.left - base.left;
+          let lane = laneEnds.findIndex((end) => end <= left - 4);
+          if (lane < 0) {
+            lane = laneEnds.length;
+            laneEnds.push(0);
+          }
+          laneEnds[lane] = box.right - base.left;
+          pill.style.top = `${lane * 1.15}rem`;
+        }
+        track.style.height = `${laneEnds.length * 1.15}rem`;
       }
 
-      // Clicking the empty track centres the view on that point.
-      function jumpToTrack(event) {
-        if (event.target === calThumb) return;
-        const rect = calSb.getBoundingClientRect();
-        const fraction = (event.clientX - rect.left) / rect.width;
-        calScroll.scrollTo({
-          left: fraction * calScroll.scrollWidth - calScroll.clientWidth / 2,
-          behavior: "smooth",
-        });
+      // One stretch of a headline bar. `from`/`to` are moments; a null `to`
+      // means it runs off the end of the chart.
+      function addSegment(chart, track, spec) {
+        const left = chart.pct(spec.from);
+        const right = spec.to === null ? 100 : chart.pct(spec.to);
+        const width = right - left;
+        if (width <= 0.05) return null;
+        const seg = el("i", `tl-seg ${spec.fill}`);
+        paint(seg, spec.color);
+        seg.style.left = `${left}%`;
+        seg.style.width = `${width}%`;
+        if (spec.to === null) seg.classList.add("clip-right");
+        // Only label it when the words will actually fit.
+        if (spec.text && chart.fits(spec.text, width)) {
+          seg.textContent = spec.text;
+        }
+        if (spec.title) seg.title = spec.title;
+        track.appendChild(seg);
+        return seg;
       }
 
-      // One week per press, so paging lands on the same weekday each time.
-      function stepCalendar(direction) {
-        const day =
-          trCalendar.querySelector(".cal-col")?.getBoundingClientRect().width ||
-          16;
-        calScroll.scrollBy({ left: direction * day * 7, behavior: "smooth" });
+      function readoutRow(host, key, value, tone) {
+        const row = el("div", "readout-row");
+        const k = el("span", "readout-key");
+        k.textContent = key;
+        const v = el("span", tone ? `readout-val ${tone}` : "readout-val");
+        v.textContent = value;
+        row.append(k, v);
+        host.appendChild(row);
       }
 
-      function startOfDay(date) {
-        const d = new Date(date.getTime());
-        d.setHours(0, 0, 0, 0);
-        return d;
-      }
+      // ---- charts ----------------------------------------------------------
 
-      function addDaysLocal(date, days) {
-        const d = new Date(date.getTime());
-        d.setDate(d.getDate() + days);
-        return d;
-      }
+      function renderResinChart(state) {
+        const { range, events, now, plan, banner } = state;
+        const chart = buildTimeline(resinTl, range, events, now);
 
-      // Calendar view: one grid column per day, one row per grabbable copy.
-      // Source names sit in the left column (once per group); everything else is
-      // spelled out in the legend underneath.
-      function renderTransientCalendar(target, now = new Date()) {
-        trCalendar.innerHTML = "";
-        trLegend.innerHTML = "";
-        calHint.textContent = "";
-        calControls.hidden = true;
-        calSb.hidden = true;
+        const track = chart.addRow("Resin", "tl-bar");
+        if (plan.headroom <= 0) {
+          const note = el("span", "tl-empty");
+          note.textContent =
+            "Already full — every point of regen from here is wasted.";
+          track.appendChild(note);
+        } else {
+          // Each stage starts where the previous one ended, so the bar reads as
+          // "hoarding gets you this far, spending buys you these extra stretches".
+          let cursor = now;
+          const drawn = [];
+          for (const stage of plan.stages) {
+            if (stage.at && stage.at <= cursor) continue;
+            const to = stage.at;
+            const seg = addSegment(chart, track, {
+              from: cursor,
+              to: to === null ? null : to,
+              fill: stage.key === "hoard" ? "solid" : "striped",
+              color: SEG_COLORS[stage.key],
+              text: stage.label,
+              title:
+                to === null
+                  ? `At ${fmtNum(stage.spend)} resin a day you spend faster than you regenerate — nothing ever fills up.`
+                  : `${stage.label}: full at ${fmtDateTime(to)}.`,
+            });
+            if (seg) drawn.push(seg);
+            if (to === null) break;
+            cursor = to;
+          }
+          // Square off the joins so the stretches read as one continuous bar.
+          for (let i = 1; i < drawn.length - 1; i += 1) {
+            drawn[i].classList.add("mid");
+          }
+          if (drawn.length > 1) {
+            drawn[0].classList.add("first");
+            drawn[drawn.length - 1].classList.add("last");
+          }
+        }
 
         const groups = TRANSIENT_SOURCES.map((source) => ({
           source,
-          ops: transientOpportunities(source, target, now),
+          ops: transientOpportunities(source, banner.date, now, range.end),
         }));
 
-        // Wide enough to draw every window at its true length, with a day of
-        // run-up before today and two past the target so both marker lines have
-        // room to breathe.
-        let first = addDaysLocal(startOfDay(now), -PAD_DAYS_BEFORE);
-        let last = addDaysLocal(startOfDay(target), PAD_DAYS_AFTER);
-        for (const { ops } of groups) {
-          for (const op of ops) {
-            if (op.available < first) first = startOfDay(op.available);
-            if (op.expiry > last) last = startOfDay(op.expiry);
-          }
-        }
-        const days = [];
-        for (let d = first; d <= last; d = addDaysLocal(d, 1)) days.push(d);
-        const dayCount = days.length;
-
-        // Which column a given day falls in. Deliberately unclamped — callers
-        // rely on out-of-range values to tell that a window runs off the chart.
-        // Rounding absorbs the hour a DST change would otherwise add or drop.
-        const dayIndex = (date) =>
-          Math.round(
-            (startOfDay(date).getTime() - days[0].getTime()) / 86400000,
-          );
-
-        // Percentage across the grid for an exact moment, for the marker lines.
-        const momentPct = (date) => {
-          const i = Math.min(Math.max(dayIndex(date), 0), dayCount - 1);
-          const dayStart = days[i].getTime();
-          const dayEnd = addDaysLocal(days[i], 1).getTime();
-          const frac = (date.getTime() - dayStart) / (dayEnd - dayStart);
-          return ((i + Math.min(Math.max(frac, 0), 1)) / dayCount) * 100;
-        };
-
-        trCalendar.style.setProperty("--days", String(dayCount));
-        const todayIndex = dayIndex(now);
-
-        const track = (cls) => {
-          const el = document.createElement("div");
-          el.className = cls ? `cal-track ${cls}` : "cal-track";
-          return el;
-        };
-
-        const row = (labelText, cls) => {
-          const el = document.createElement("div");
-          el.className = cls ? `cal-row ${cls}` : "cal-row";
-          const label = document.createElement("div");
-          label.className = "cal-label";
-          label.textContent = labelText || "";
-          const plot = track();
-          el.append(label, plot);
-          return { el, plot };
-        };
-
-        // Both markers are labelled on the chart itself, in a strip under the
-        // lanes so they can't collide with the calendar dates along the top.
-        // They hang away from each other — now to the left of its line, target to
-        // the right — so the two pills never overlap either.
-        const targetPct = momentPct(target);
-        const nowPct = momentPct(now);
-        const pin = row("", "cal-pin");
-        const addPin = (cls, text, pct, toRight) => {
-          const el = document.createElement("span");
-          el.className = `cal-pin-label ${cls}`;
-          el.textContent = text;
-          if (toRight) el.style.left = `${pct}%`;
-          else el.style.right = `${100 - pct}%`;
-          pin.plot.appendChild(el);
-        };
-        addPin("now", `Now · ${fmtDate(now)}`, nowPct, false);
-        addPin(
-          "target",
-          `Target · ${fmtDate(target)}`,
-          targetPct,
-          dayCount - dayIndex(target) >= 7,
-        );
-
-        // Date labels above the grid: every Monday, since that's when the weekly
-        // reset lands, plus the first column when no Monday sits near it.
-        const firstMonday = days.findIndex((d) => d.getDay() === 1);
-        const dates = row("", "cal-dates");
-        for (let i = 0; i < dayCount; i++) {
-          const wanted =
-            days[i].getDay() === 1 ||
-            (i === 0 && (firstMonday < 0 || firstMonday >= 4));
-          // Skip anything too near the end — the text would run off the chart.
-          if (!wanted || dayCount - i < 4) continue;
-          const label = document.createElement("span");
-          label.className = "cal-date";
-          label.style.left = `${(i / dayCount) * 100}%`;
-          label.textContent = fmtDay(days[i]);
-          dates.plot.appendChild(label);
-        }
-
-        const dow = row("", "cal-dow");
-        for (let i = 0; i < dayCount; i++) {
-          const letter = document.createElement("i");
-          if (days[i].getDay() === 1) letter.className = "week";
-          letter.textContent = WEEKDAYS[days[i].getDay()].charAt(0);
-          dow.plot.appendChild(letter);
-        }
-
-        const dayCells = (plot) => {
-          for (let i = 0; i < dayCount; i++) {
-            const cell = document.createElement("i");
-            const classes = ["cal-col"];
-            if (days[i].getDay() === 1) classes.push("week");
-            else if (days[i].getDay() === 0 || days[i].getDay() === 6)
-              classes.push("weekend");
-            if (i === todayIndex) classes.push("today");
-            cell.className = classes.join(" ");
-            cell.style.gridColumn = String(i + 1);
-            plot.appendChild(cell);
-          }
-        };
-
-        const body = document.createElement("div");
-        body.className = "cal-body";
-        const lines = document.createElement("div");
-        lines.className = "cal-lines";
-        for (const [date, cls] of [
-          [now, "now"],
-          [target, "target"],
-        ]) {
-          const line = document.createElement("i");
-          line.className = `cal-line ${cls}`;
-          line.style.left = `${momentPct(date)}%`;
-          lines.appendChild(line);
-        }
-        body.appendChild(lines);
-
-        const byKey = {};
         let totalKeep = 0;
-
-        // Windows that don't overlap can share a lane, so a source needs only as
-        // many rows as it has simultaneously-valid copies. Realm Depot buys one
-        // a week and each lasts a fortnight, so it packs into two lanes that
-        // each read as a continuous strip — which is exactly why the colour has
-        // to change at every handover.
-        const packLanes = (ops) => {
-          const lanes = [];
-          for (const op of ops) {
-            const fromRaw = dayIndex(op.available);
-            const untilRaw = dayIndex(op.expiry);
-            const item = {
-              op,
-              fromRaw,
-              untilRaw,
-              from: Math.max(fromRaw, 0),
-              until: Math.min(untilRaw, dayCount),
-            };
-            let lane = lanes.find((l) => l.end <= fromRaw);
-            if (!lane) {
-              lane = { end: -Infinity, items: [] };
-              lanes.push(lane);
-            }
-            lane.items.push(item);
-            lane.end = untilRaw;
-          }
-          return lanes;
-        };
-
         for (const { source, ops } of groups) {
-          const keepCount = ops.filter((o) => o.keep).length;
-          byKey[source.key] = keepCount;
-          totalKeep += keepCount;
-
-          const group = document.createElement("div");
-          group.className = "cal-group";
+          totalKeep += ops.filter((op) => op.keep).length;
+          const group = chart.addGroup();
 
           if (!ops.length) {
-            const empty = row(source.short);
-            const none = document.createElement("span");
-            none.className = "cal-none";
-            none.style.gridColumn = `1 / ${dayCount + 1}`;
+            const lane = group.addRow(source.short, "tl-lane");
+            const none = el("span", "tl-empty");
             none.textContent = source.activeWeeks
-              ? "No payout week between now and your target."
-              : "No window reaches your target date.";
-            dayCells(empty.plot);
-            empty.plot.appendChild(none);
-            group.appendChild(empty.el);
+              ? "No payout week in this range."
+              : "Nothing to claim in this range.";
+            lane.appendChild(none);
+            continue;
           }
 
-          packLanes(ops).forEach((lane, laneIndex) => {
+          // Windows that don't overlap can share a lane, so a source needs only
+          // as many rows as it has simultaneously-valid copies. Realm Depot buys
+          // one a week and each lasts a fortnight, so it packs into two lanes
+          // that each read as a continuous strip — which is exactly why the
+          // colour has to change at every handover.
+          const lanes = [];
+          for (const op of ops) {
+            let lane = lanes.find((l) => l.end <= op.available.getTime());
+            if (!lane) {
+              lane = { end: -Infinity, ops: [] };
+              lanes.push(lane);
+            }
+            lane.ops.push(op);
+            lane.end = op.expiry.getTime();
+          }
+
+          lanes.forEach((lane, laneIndex) => {
             // Name once per source — the legend carries the rest.
-            const line = row(laneIndex === 0 ? source.short : "");
-            dayCells(line.plot);
-
-            for (const { op, from, until, fromRaw, untilRaw } of lane.items) {
-              const hue =
-                ((op.period % PERIOD_COLORS.length) + PERIOD_COLORS.length) %
-                PERIOD_COLORS.length;
-              const [r, g, bl] = PERIOD_COLORS[hue];
-
+            const track = group.addRow(
+              laneIndex === 0 ? source.short : "",
+              "tl-lane",
+            );
+            for (const op of lane.ops) {
+              const color =
+                PERIOD_COLORS[
+                  ((op.period % PERIOD_COLORS.length) + PERIOD_COLORS.length) %
+                    PERIOD_COLORS.length
+                ];
               const grabbed = op.isThisWeek
                 ? `this week from ${fmtDate(op.available)}`
                 : fmtDate(op.available);
@@ -1864,101 +1483,181 @@
                 ? `${source.name} — in hand since ${fmtDate(op.available)}, expires ${fmtDate(op.expiry)}.`
                 : `${source.name} — ${source.verb.toLowerCase()} ${grabbed}, expires ${fmtDate(op.expiry)}.`;
               const verdict = op.keep
-                ? `Still valid on ${fmtDate(target)}.`
+                ? `Still valid at ${banner.name} on ${fmtDate(banner.date)}.`
                 : op.context === "gone"
                   ? "Already expired — shown for context."
                   : op.context === "later"
-                    ? `Next chance, but not claimable until after ${fmtDate(target)}.`
-                    : `Gone before ${fmtDate(target)} — spend it, don't hoard it.`;
+                    ? `Next chance, but not claimable until after ${banner.name}.`
+                    : `Gone before ${banner.name} — spend it, don't hoard it.`;
+              const title = `${how} ${verdict}`;
 
               // The claim window always closes when the week does; the copy then
               // lives one more week on top of that.
-              const weekEnd = dayIndex(addDaysLocal(op.monday, 7));
+              const weekEnd = addDaysLocal(op.monday, 7);
               const segments = [
-                ["claim", from, Math.min(weekEnd, until), "claim"],
-                [
-                  "hold",
-                  Math.max(weekEnd, from),
-                  until,
-                  `expires ${fmtDay(op.expiry)}`,
-                ],
+                {
+                  fill: "claim",
+                  from: op.available,
+                  to: weekEnd < op.expiry ? weekEnd : op.expiry,
+                  text: "claim",
+                },
+                {
+                  fill: "hold",
+                  from: weekEnd > op.available ? weekEnd : op.available,
+                  to: op.expiry,
+                  text: `expires ${fmtDay(op.expiry)}`,
+                  chip: true,
+                },
               ];
-
-              for (const [kind, segFrom, segUntil, label] of segments) {
-                const width = segUntil - segFrom;
-                if (width <= 0) continue;
-                const seg = document.createElement("i");
-                seg.className = `cal-seg ${kind}`;
+              for (const spec of segments) {
+                if (spec.to <= spec.from) continue;
+                if (spec.to <= range.start || spec.from >= range.end) continue;
+                const seg = addSegment(chart, track, {
+                  from: spec.from,
+                  to: spec.to,
+                  fill: spec.fill,
+                  color,
+                  title,
+                });
+                if (!seg) continue;
                 if (!op.keep) seg.classList.add("faded");
-                if (kind === "hold" && untilRaw > dayCount) {
-                  seg.classList.add("clip-right");
+                if (spec.from < range.start) seg.classList.add("clip-left");
+                if (spec.to > range.end) seg.classList.add("clip-right");
+                // Solid backing so the date stays crisp over the gridlines.
+                const width = chart.pct(spec.to) - chart.pct(spec.from);
+                if (chart.fits(spec.text, width)) {
+                  if (spec.chip) {
+                    const chip = el("span", "tl-seg-label");
+                    chip.textContent = spec.text;
+                    seg.appendChild(chip);
+                  } else {
+                    seg.textContent = spec.text;
+                  }
                 }
-                if (kind === "claim" && fromRaw < 0) {
-                  seg.classList.add("clip-left");
-                }
-                seg.style.setProperty("--bar", `rgb(${r}, ${g}, ${bl})`);
-                seg.style.setProperty(
-                  "--bar-soft",
-                  `rgba(${r}, ${g}, ${bl}, 0.45)`,
-                );
-                seg.style.gridColumn = `${segFrom + 1} / ${segUntil + 1}`;
-                // Only label it when the words will actually fit.
-                const text =
-                  width >= 6
-                    ? label
-                    : width >= 3
-                      ? kind === "hold"
-                        ? fmtDay(op.expiry)
-                        : "claim"
-                      : "";
-                if (text && kind === "hold") {
-                  const chip = document.createElement("span");
-                  chip.className = "cal-seg-label";
-                  chip.textContent = text;
-                  seg.appendChild(chip);
-                } else if (text) {
-                  seg.textContent = text;
-                }
-                seg.title = `${how} ${verdict}`;
-                line.plot.appendChild(seg);
               }
 
-              const sr = document.createElement("span");
-              sr.className = "sr-only";
-              sr.textContent = `${how} ${verdict}`;
-              line.plot.appendChild(sr);
+              const sr = el("span", "sr-only");
+              sr.textContent = title;
+              track.appendChild(sr);
             }
-            group.appendChild(line.el);
           });
+        }
 
-          body.appendChild(group);
+        layoutMarks(chart.marksTrack);
+        renderResinReadout(state, groups, totalKeep);
+      }
 
-          const entry = document.createElement("div");
-          entry.className = "leg-src";
-          const name = document.createElement("span");
-          name.className = "leg-name";
+      function renderResinReadout(state, groups, totalKeep) {
+        const { plan, banner, now } = state;
+        resinReadout.innerHTML = "";
+        resinLegend.innerHTML = "";
+
+        if (plan.headroom <= 0) {
+          readoutRow(
+            resinReadout,
+            "Storage",
+            "already full — spend something",
+            "bad",
+          );
+        } else {
+          for (const stage of plan.stages) {
+            // The trounce stage is only meaningful when it actually costs
+            // something; without runs it just repeats the line above it.
+            if (
+              stage.key === "trounce" &&
+              stage.spend === plan.stages[1].spend
+            ) {
+              continue;
+            }
+            const key =
+              stage.key === "hoard"
+                ? "Full if you hoard"
+                : stage.key === "daily"
+                  ? `Full at ${stage.label}`
+                  : `Full with ${stage.label} too`;
+            readoutRow(
+              resinReadout,
+              key,
+              stage.at === null
+                ? "never — you outspend regen"
+                : `${fmtDateTime(stage.at)} · in ${formatGap(stage.at - now)}`,
+            );
+          }
+
+          // The first Condensed craft is the only deadline you can act on right
+          // now, and it lands long before the bar itself fills up.
+          const realistic = plan.stages[plan.stages.length - 1];
+          const slots = plan.slots;
+          if (slots > 0 && realistic.rate > 0) {
+            const first = addMs(
+              now,
+              ((RESIN_CAP - state.current) / realistic.rate) * 86400000,
+            );
+            const every = (RESIN_PER_CONDENSED / realistic.rate) * 1440;
+            readoutRow(
+              resinReadout,
+              `Craft Condensed #1 by (then every ${formatElapsed(every)}, ${slots} in all)`,
+              fmtDateTime(first),
+            );
+          }
+        }
+
+        readoutRow(
+          resinReadout,
+          `Transient Resin banked by ${banner.name}`,
+          totalKeep
+            ? `+${fmtNum(totalKeep * TRANSIENT_RESIN)} · ${totalKeep} ${totalKeep === 1 ? "copy" : "copies"}`
+            : "nothing survives that long",
+          totalKeep ? "good" : undefined,
+        );
+
+        // Whether the ceiling lands before or after the thing you're hoarding
+        // for is the entire point of the chart, so say it in words.
+        const realistic = plan.stages[plan.stages.length - 1];
+        if (plan.headroom <= 0) {
+          resinVerdict.textContent = `You're already full, ${formatGap(banner.date - now)} before ${banner.name}. Every minute of regen until then is thrown away — go spend.`;
+        } else if (realistic.at === null) {
+          resinVerdict.textContent = `At ${fmtNum(realistic.spend)} resin a day you spend faster than you regenerate, so nothing ever fills up. You'll arrive at ${banner.name} with room to spare, but you won't have banked much.`;
+        } else if (realistic.at < banner.date) {
+          resinVerdict.textContent = `You max out ${formatGap(banner.date - realistic.at)} before ${banner.name} on ${fmtDate(banner.date)} — that's how long you'd be wasting regen. Spend more, or find something to dump it into.`;
+        } else {
+          resinVerdict.textContent = `You reach ${banner.name} on ${fmtDate(banner.date)} with ${formatGap(realistic.at - banner.date)} of headroom still to go. Nothing wasted.`;
+        }
+
+        renderResinLegend(groups, banner, now);
+      }
+
+      function renderResinLegend(groups, banner, now) {
+        for (const { source, ops } of groups) {
+          const keepCount = ops.filter((op) => op.keep).length;
+          const entry = el("div", "leg-src");
+          const name = el("span", "leg-name");
           name.textContent = `${source.short} `;
+
           // "Banks nothing" has several very different causes, and lumping them
-          // together reads as "nothing to claim" when a copy may be sitting there
-          // right now that simply won't survive until the target.
-          // Chronological, so the last live one has the most life left in it —
-          // that's the expiry worth quoting.
+          // together reads as "nothing to claim" when a copy may be sitting
+          // there right now that simply won't survive until the banner.
           const live = ops.filter(
             (op) => op.available <= now && op.expiry > now,
           );
           const claimableNow = live[live.length - 1];
-          const total = document.createElement("span");
-          total.className = keepCount ? "leg-total" : "leg-total none";
+          // "Not yet" and "too late" are opposite problems and a source that
+          // hasn't opened yet must not read as one whose copies keep dying.
+          const notYet = ops.find((op) => op.context === "later");
+          const total = el("span", keepCount ? "leg-total" : "leg-total none");
           if (keepCount) {
             total.textContent = `+${keepCount * TRANSIENT_RESIN} banked`;
           } else if (claimableNow) {
             total.textContent = `in hand, but dies ${fmtDay(claimableNow.expiry)}`;
-          } else if (ops.length) {
+          } else if (ops.some((op) => !op.context)) {
             total.textContent = "every copy expires too early";
+          } else if (notYet) {
+            total.textContent = `nothing until ${fmtDay(notYet.available)}, after ${banner.name}`;
           } else {
             total.textContent = "nothing to claim in time";
           }
-          const detail = document.createElement("span");
+
+          const detail = el("span");
           const full = source.name === source.short ? "" : `${source.name} · `;
           const parts = [`${full}${source.meta}`, source.sub];
           if (source.activeWeeks) {
@@ -1976,131 +1675,110 @@
           }
           detail.textContent = ` — ${parts.join(" · ")} — `;
           entry.append(name, detail, total);
-          trLegend.appendChild(entry);
+          resinLegend.appendChild(entry);
         }
 
-        const colourNote = document.createElement("div");
-        colourNote.className = "leg-note";
-        colourNote.textContent =
-          "Colour marks which week a copy comes from, so a change of colour in a lane is where one copy hands over to the next. The faded copies either side of your window are there to show the cadence.";
-        trLegend.appendChild(colourNote);
+        const note = el("div", "leg-note");
+        note.textContent = `Transient Resin is stored as an item, so it doesn't count against your 200 cap — each copy banks +60 on top of the bar. Colour marks which week a copy comes from, so a change of colour in a lane is where one copy hands over to the next. Faded copies can't reach ${banner.name}.`;
+        resinLegend.appendChild(note);
 
-        const keys = document.createElement("div");
-        keys.className = "leg-keys";
-        for (const [cls, label] of [
-          ["keep", "Solid: still claimable"],
-          ["hold", "Hollow: yours until it expires"],
-          ["faded", "Faded: can't reach your target"],
-        ]) {
-          const item = document.createElement("span");
-          const swatch = document.createElement("i");
-          swatch.className = cls ? `leg-swatch ${cls}` : "leg-swatch";
+        const keys = el("div", "leg-keys");
+        const swatches = [
+          ["solid", SEG_COLORS.hoard, "Resin you'd bank by hoarding"],
+          ["striped", SEG_COLORS.daily, "Extra time your daily spend buys"],
+          ["striped", SEG_COLORS.trounce, "Extra time trounce runs buy"],
+          [
+            "hollow",
+            PERIOD_COLORS[0],
+            "Transient copy: yours until it expires",
+          ],
+        ];
+        for (const [cls, color, label] of swatches) {
+          const item = el("span");
+          const swatch = el("i", `leg-swatch ${cls}`);
+          paint(swatch, color);
           item.append(swatch, document.createTextNode(label));
           keys.appendChild(item);
         }
-        trLegend.appendChild(keys);
+        for (const [cls, label] of [
+          ["line", "Banner"],
+          ["line stygian", "Stygian Onslaught"],
+        ]) {
+          const item = el("span");
+          item.append(
+            el("i", `leg-swatch ${cls}`),
+            document.createTextNode(label),
+          );
+          keys.appendChild(item);
+        }
+        resinLegend.appendChild(keys);
+      }
 
-        trCalendar.append(dates.el, dow.el, body, pin.el);
+      function renderCompanionChart(state) {
+        const { range, events, now, companion, banner } = state;
+        const chart = buildTimeline(companionTl, range, events, now);
+        const track = chart.addRow("Comp. EXP", "tl-bar");
 
-        // Days are a fixed width, so a long run-up overflows. Bring the target
-        // into view — but only when the range itself changed, so the minute-tick
-        // re-render never yanks the chart back from where you scrolled it.
-        const overflows = calScroll.scrollWidth > calScroll.clientWidth + 1;
-        const shape = `${dayCount}|${target.getTime()}`;
-        if (overflows && calScroll.dataset.shape !== shape) {
-          const targetX =
-            pin.plot.offsetLeft + (targetPct / 100) * pin.plot.offsetWidth;
-          // 0.62 rather than flush right, so the pinned label has room beside it.
-          calScroll.scrollLeft = Math.max(
-            0,
-            targetX - calScroll.clientWidth * 0.62,
+        companionReadout.innerHTML = "";
+
+        if (companion.already) {
+          const note = el("span", "tl-empty");
+          note.textContent = "Already at 500 — pour it into someone.";
+          track.appendChild(note);
+        } else if (companion.at === null) {
+          const note = el("span", "tl-empty");
+          note.textContent = "Nothing accruing at a rate of 0/hr.";
+          track.appendChild(note);
+        } else {
+          const seg = addSegment(chart, track, {
+            from: now,
+            to: companion.at > range.end ? null : companion.at,
+            fill: "solid",
+            color: SEG_COLORS.companion,
+            text: `full ${fmtDay(companion.at)}`,
+            title: `Caps at ${COMPANION_CAP} on ${fmtDateTime(companion.at)}.`,
+          });
+          if (seg) seg.classList.add("first", "last");
+        }
+
+        layoutMarks(chart.marksTrack);
+
+        if (companion.already) {
+          readoutRow(companionReadout, "Storage", "already at 500", "bad");
+        } else if (companion.at === null) {
+          readoutRow(companionReadout, "Full at", "never — rate is 0/hr");
+        } else {
+          readoutRow(
+            companionReadout,
+            "Full at",
+            `${fmtDateTime(companion.at)} · in ${formatGap(companion.at - now)}`,
+          );
+          readoutRow(
+            companionReadout,
+            "Payouts needed",
+            `${fmtNum(companion.payouts)}, one on each hour mark`,
           );
         }
-        calScroll.dataset.shape = shape;
-        updateCalControls();
 
-        trTotal.textContent = totalKeep
-          ? `Bankable by ${fmtDate(target)}: +${totalKeep * TRANSIENT_RESIN} resin from ${totalKeep} ${totalKeep === 1 ? "copy" : "copies"}.`
-          : "Nothing you grab now stays valid until your target date.";
-
-        return { totalKeep, byKey };
-      }
-
-      function toLocalDatetimeValue(date) {
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-      }
-
-      function formatElapsed(minutes) {
-        const total = Math.round(minutes);
-        if (total < 1) return "less than a minute";
-        const days = Math.floor(total / 1440);
-        const hours = Math.floor((total % 1440) / 60);
-        const mins = total % 60;
-        const parts = [];
-        if (days) parts.push(`${days}d`);
-        if (hours) parts.push(`${hours}h`);
-        if (mins) parts.push(`${mins}m`);
-        return parts.join(" ");
-      }
-
-      function tzSuffix(offset) {
-        const sign = offset >= 0 ? "+" : "-";
-        return `${sign}${pad(Math.abs(offset))}:00`;
-      }
-
-      function addDays(yyyyMmDd, days) {
-        const [y, m, d] = yyyyMmDd.split("-").map(Number);
-        const dt = new Date(Date.UTC(y, m - 1, d));
-        dt.setUTCDate(dt.getUTCDate() + days);
-        return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
-      }
-
-      function nextEventDate(eventKey, server, now = new Date()) {
-        const event = EVENTS[eventKey];
-        const offset = SERVERS[server].offset;
-        const tz = tzSuffix(offset);
-        const periodMs = VERSION_PERIOD_DAYS * 86400000;
-        let earliest = null;
-        for (const occ of event.occurrences) {
-          const firstYmd = addDays(VERSION_ANCHOR_DATE, occ.offsetDays);
-          const firstOcc = new Date(
-            `${firstYmd}T${pad(occ.hour)}:00:00${occ.utc ? "+00:00" : tz}`,
-          );
-          const diff = now.getTime() - firstOcc.getTime();
-          const cycles = diff < 0 ? 0 : Math.floor(diff / periodMs) + 1;
-          const candidate = new Date(firstOcc.getTime() + cycles * periodMs);
-          if (earliest === null || candidate < earliest) earliest = candidate;
+        if (companion.already) {
+          companionVerdict.textContent = `You're capped ${formatGap(banner.date - now)} before ${banner.name} — everything the pot generates until then is lost.`;
+        } else if (companion.at === null) {
+          companionVerdict.textContent =
+            "With no characters generating Companionship EXP there's nothing to bank. Put someone in the pot.";
+        } else if (companion.at < banner.date) {
+          companionVerdict.textContent = `Full ${formatGap(banner.date - companion.at)} before ${banner.name} on ${fmtDate(banner.date)} — you'll have the whole 500 ready, and you'll be overflowing for that long.`;
+        } else {
+          companionVerdict.textContent = `${banner.name} lands ${formatGap(companion.at - banner.date)} before you'd top out, so you'll arrive short of the full 500.`;
         }
-        return earliest;
       }
 
-      function formatEventHint(date, server) {
-        const offset = SERVERS[server].offset;
-        const serverDate = new Date(date.getTime() + offset * 3600000);
-        const ymd = `${pad(serverDate.getUTCDate())} ${MONTHS[serverDate.getUTCMonth()]}`;
-        const hm = `${pad(serverDate.getUTCHours())}:${pad(serverDate.getUTCMinutes())}`;
-        return `${ymd} ${hm} ${SERVERS[server].label} (UTC${offset >= 0 ? "+" : ""}${offset})`;
-      }
-
-      function detectClosestServer() {
-        const browserOffsetHr = -new Date().getTimezoneOffset() / 60;
-        let closest = "asia",
-          minDiff = Infinity;
-        for (const [k, v] of Object.entries(SERVERS)) {
-          const d = Math.abs(v.offset - browserOffsetHr);
-          if (d < minDiff) {
-            minDiff = d;
-            closest = k;
-          }
-        }
-        return closest;
-      }
+      // ---- cookies ---------------------------------------------------------
 
       function getCookie(name) {
-        const m = document.cookie.match(
+        const match = document.cookie.match(
           new RegExp("(?:^|; )" + name + "=([^;]*)"),
         );
-        return m ? decodeURIComponent(m[1]) : null;
+        return match ? decodeURIComponent(match[1]) : null;
       }
 
       function setCookie(name, value) {
@@ -2110,396 +1788,150 @@
         document.cookie = `${name}=${encodeURIComponent(value)}; expires=${exp}; path=/; SameSite=Lax`;
       }
 
-      function refreshButtonStates() {
-        const server = selectServer.value;
-        const inputValue = inputFuture.value;
-        let activeDate = null;
-        for (const btn of eventButtons) {
-          const eventKey = btn.dataset.event;
-          if (!EVENTS[eventKey] || !SERVERS[server]) {
-            btn.classList.remove("active");
-            continue;
-          }
-          const date = nextEventDate(eventKey, server);
-          const matches =
-            inputValue && toLocalDatetimeValue(date) === inputValue;
-          btn.classList.toggle("active", matches);
-          if (matches) activeDate = date;
+      const PERSISTED = {
+        resin: inputCurrent,
+        condensed: inputCurrentCondensed,
+        daily: inputDailySpend,
+        runs: inputWeeklyRuns,
+        companion: inputCompanion,
+        companionRate: inputCompanionRate,
+      };
+
+      function saveInputs() {
+        const state = { trounce: inputTrounceOn.checked };
+        for (const [key, input] of Object.entries(PERSISTED)) {
+          state[key] = input.value;
         }
-        eventHint.textContent = activeDate
-          ? `Server time: ${formatEventHint(activeDate, server)}`
-          : "";
+        setCookie(COOKIE_INPUTS, JSON.stringify(state));
       }
 
-      function applyEvent(eventKey) {
-        const server = selectServer.value;
-        if (!EVENTS[eventKey] || !SERVERS[server]) return;
-        const date = nextEventDate(eventKey, server);
-        inputFuture.value = toLocalDatetimeValue(date);
-        setCookie(COOKIE_EVENT, eventKey);
-        refreshButtonStates();
-        calculate();
-      }
-
-      // Pack a pool of resin into storage the way you actually would: fill the
-      // Condensed slots first (they're immune to the 200 cap), leave the rest
-      // loose. Anything past 200 loose is regen you never got to keep.
-      // Crafting isn't a loss — 60 resin becomes 60 resin of Condensed.
-      function bankResin(pool, startCondensed) {
-        const usable = Math.max(0, pool);
-        const slots = MAX_CONDENSED - startCondensed;
-        const crafted = Math.min(
-          slots,
-          Math.floor(usable / RESIN_PER_CONDENSED),
-        );
-        const loose = usable - crafted * RESIN_PER_CONDENSED;
-        const condensed = startCondensed + crafted;
-        const resin = Math.min(RESIN_CAP, Math.floor(loose));
-        return {
-          crafted,
-          condensed,
-          resin,
-          overflow: Math.max(0, Math.floor(loose - RESIN_CAP)),
-          total: condensed * RESIN_PER_CONDENSED + resin,
-          dry: pool <= 0,
-        };
-      }
-
-      // The moment hoarding stops paying: every Condensed slot filled and the
-      // resin bar at 200, so regen from then on is thrown away. Assumes you
-      // spend nothing, which is the whole point of hoarding.
-      function renderMaxOut(current, startCondensed, target, now) {
-        const capacity =
-          (MAX_CONDENSED - startCondensed) * RESIN_PER_CONDENSED + RESIN_CAP;
-        const toFill = Math.max(0, capacity - current) * MIN_PER_RESIN;
-        const fullAt = new Date(now.getTime() + toFill * 60000);
-        const offset = (fullAt.getTime() - target.getTime()) / 60000;
-
-        if (!toFill) {
-          resFull.textContent = "already maxed";
-          detailFull.textContent = "every slot is full — you're wasting regen";
+      function restoreInputs() {
+        let saved;
+        try {
+          saved = JSON.parse(getCookie(COOKIE_INPUTS) || "{}");
+        } catch (_) {
           return;
         }
-        resFull.textContent =
-          offset >= 0
-            ? `after ${formatElapsed(offset)}`
-            : `before ${formatElapsed(-offset)}`;
-        detailFull.textContent =
-          offset >= 0
-            ? `${fmtDateTime(fullAt)} — that much slack past your target`
-            : `${fmtDateTime(fullAt)} — wasting regen from then until your target`;
-      }
-
-      const MAX_SCHEDULE_ROWS = 8;
-
-      // Walk the resin bar forward and note every moment it would hit 200.
-      // At each one you either craft a Condensed (60 of headroom, free — the
-      // value is stored, not spent) or you have to actually spend resin.
-      function renderSchedule(current, startCondensed, dailyRate, target, now) {
-        schedule.innerHTML = "";
-
-        const chunk = Math.min(dailyRate, RESIN_CAP);
-        let bar = Math.min(current, RESIN_CAP);
-        let slots = MAX_CONDENSED - startCondensed;
-        let time = now.getTime();
-        let crafts = 0;
-        let truncated = false;
-        let capsBeforeTarget = false;
-        const rows = [];
-
-        while (true) {
-          time += (RESIN_CAP - bar) * MIN_PER_RESIN * 60000;
-          if (time > target.getTime()) break;
-          capsBeforeTarget = true;
-          if (rows.length === MAX_SCHEDULE_ROWS) {
-            truncated = true;
-            break;
-          }
-          if (slots > 0) {
-            crafts += 1;
-            slots -= 1;
-            bar = RESIN_CAP - RESIN_PER_CONDENSED;
-            rows.push({
-              craft: true,
-              act: `Craft Condensed #${crafts}`,
-              when: new Date(time),
-            });
-          } else {
-            if (chunk <= 0) break;
-            bar = Math.max(0, RESIN_CAP - chunk);
-            rows.push({
-              craft: false,
-              act: `Spend ${fmtNum(chunk)} on dailies`,
-              when: new Date(time),
-            });
-          }
+        if (!saved || typeof saved !== "object") return;
+        for (const [key, input] of Object.entries(PERSISTED)) {
+          if (typeof saved[key] === "string") input.value = saved[key];
         }
-
-        for (const row of rows) {
-          const el = document.createElement("div");
-          el.className = row.craft ? "sched-row craft" : "sched-row";
-          const act = document.createElement("span");
-          act.className = "sched-act";
-          act.textContent = `${row.act} by`;
-          const when = document.createElement("span");
-          when.className = "sched-when";
-          when.textContent = fmtDateTime(row.when);
-          el.append(act, when);
-          schedule.appendChild(el);
-        }
-
-        if (!capsBeforeTarget) {
-          scheduleNote.textContent = `Nothing to do — the bar won't reach ${RESIN_CAP} before ${fmtDate(target)}.`;
-        } else if (truncated) {
-          scheduleNote.textContent = `…and roughly every ${formatElapsed(chunk * MIN_PER_RESIN)} after that, as long as you keep spending ${fmtNum(chunk)} a session.`;
-        } else if (chunk <= 0) {
-          scheduleNote.textContent =
-            "With no daily spend there's nothing left to free up after that — regen is wasted from then on.";
-        } else if (crafts) {
-          scheduleNote.textContent = `Each craft empties the bar without losing anything, so ${crafts} of these need no domain run at all.`;
-        } else {
-          scheduleNote.textContent =
-            "Your Condensed slots are already full, so these have to be real spending.";
+        if (typeof saved.trounce === "boolean") {
+          inputTrounceOn.checked = saved.trounce;
         }
       }
 
-      function bankBreakdown(bank) {
-        if (bank.dry) return "spending outpaces regen — you'd run dry";
-        const parts = [`${bank.condensed} condensed + ${bank.resin} loose`];
-        if (bank.overflow) parts.push(`${bank.overflow} overflowed`);
-        return parts.join(" · ");
-      }
+      // ---- main ------------------------------------------------------------
 
-      // What's actually left after the resin you have to keep spending.
-      // Crafting Condensed Resin empties your resin bar too, so it counts
-      // towards the daily quota without costing you any stored value.
-      function renderSpending(
-        current,
-        startCondensed,
-        pool,
-        minutes,
-        target,
-        now,
-      ) {
-        spendError.hidden = true;
-        spendNote.textContent = "";
-        schedule.innerHTML = "";
-        scheduleNote.textContent = "";
-
-        const dailyRate = readNumber(inputDailySpend, DAILY_SPEND_DEFAULT);
-        const bossRuns = readNumber(inputWeeklyRuns, WEEKLY_RUNS_DEFAULT);
-        const spendValues = [resHoard, resAfterDailies, resAfterWeeklies];
-        const spendDetails = [detailHoard, detailDailies, detailWeeklies];
-
-        if (!Number.isFinite(dailyRate) || dailyRate < 0) {
-          showError(
-            spendError,
-            "Daily spend must be 0 or more.",
-            spendValues,
-            spendDetails,
-          );
-          return;
-        }
-        if (!Number.isFinite(bossRuns) || bossRuns < 0) {
-          showError(
-            spendError,
-            "Weekly boss runs must be 0 or more.",
-            spendValues,
-            spendDetails,
-          );
-          return;
-        }
-
-        const days = minutes / 1440;
-        const weeks = days / 7;
-        const hoard = bankResin(pool, startCondensed);
-
-        const dailyNeed = dailyRate * days;
-        const craftCredit = hoard.crafted * RESIN_PER_CONDENSED;
-        const dailyCost = Math.max(0, dailyNeed - craftCredit);
-        const weeklyCost = bossRuns * WEEKLY_BOSS_RESIN * weeks;
-
-        const afterDailies = bankResin(pool - dailyCost, startCondensed);
-        const afterWeeklies = bankResin(
-          pool - dailyCost - weeklyCost,
-          startCondensed,
-        );
-
-        resHoard.textContent = fmtNum(hoard.total);
-        detailHoard.textContent = bankBreakdown(hoard);
-
-        resAfterDailies.textContent = fmtNum(afterDailies.total);
-        detailDailies.textContent =
-          `${fmtNum(dailyRate)}/day × ${days.toFixed(1)}d = ${fmtNum(dailyNeed)}, ` +
-          `crafting covers ${fmtNum(craftCredit)} → −${fmtNum(dailyCost)} · ` +
-          bankBreakdown(afterDailies);
-
-        resAfterWeeklies.textContent = fmtNum(afterWeeklies.total);
-        detailWeeklies.textContent = bossRuns
-          ? `${bossRuns} × ${WEEKLY_BOSS_RESIN} × ${weeks.toFixed(1)}wk → −${fmtNum(weeklyCost)} · ` +
-            bankBreakdown(afterWeeklies)
-          : "no boss runs — same as above";
-
-        // Once you're past the cap, everything you spend comes out of resin you
-        // were going to lose anyway, so the three totals sit at the same number.
-        spendNote.textContent =
-          afterWeeklies.overflow > 0 && afterWeeklies.total === hoard.total
-            ? `You're over the cap in every case — the spending comes straight out of the overflow, which drops from ${fmtNum(hoard.overflow)} to ${fmtNum(afterWeeklies.overflow)}. Aim for a nearer target if you want it all banked.`
-            : "";
-
-        renderSchedule(current, startCondensed, dailyRate, target, now);
-      }
-
-      // Number of hourly payouts landing in (from, to]. Assumes Tubby pays at
-      // the end of each clock hour, so what matters is how many hour marks you
-      // cross, not how many whole hours elapse.
-      function hourlyPayouts(from, to) {
-        const a = new Date(from.getTime());
-        a.setMinutes(0, 0, 0);
-        const b = new Date(to.getTime());
-        b.setMinutes(0, 0, 0);
-        return Math.max(0, Math.round((b.getTime() - a.getTime()) / 3600000));
-      }
-
-      function renderCompanionship(target, now) {
-        companionError.hidden = true;
-
-        const current = readNumber(inputCompanion, 0);
-        const rate = readNumber(inputCompanionRate, COMPANION_RATE_DEFAULT);
-        const values = [resCompanion, resCompanionWasted];
-        const details = [detailCompanionStored];
-
-        if (
-          !Number.isFinite(current) ||
-          current < 0 ||
-          current > COMPANION_CAP
-        ) {
-          showError(
-            companionError,
-            `Current must be between 0 and ${COMPANION_CAP}.`,
-            values,
-            details,
-          );
-          return;
-        }
-        if (!Number.isFinite(rate) || rate < 0) {
-          showError(companionError, "Rate must be 0 or more.", values, details);
-          return;
-        }
-
-        const payouts = hourlyPayouts(now, target);
-        const pool = current + rate * payouts;
-        resCompanion.textContent = `${fmtNum(Math.min(COMPANION_CAP, Math.floor(pool)))} / ${fmtNum(COMPANION_CAP)}`;
-        detailCompanionStored.textContent = `${fmtNum(rate)}/hr × ${fmtNum(payouts)} payouts, one on each hour mark`;
-        resCompanionWasted.textContent = fmtNum(
-          Math.max(0, pool - COMPANION_CAP),
-        );
-      }
-
-      function clearResults(placeholder = "—") {
-        resResin.textContent = placeholder;
-        resCondensed.textContent = placeholder;
-        resWasted.textContent = placeholder;
-        resElapsed.textContent = placeholder;
-        resFull.textContent = placeholder;
-        for (const el of [resHoard, resAfterDailies, resAfterWeeklies]) {
-          el.textContent = placeholder;
-        }
-        for (const el of [
-          detailHoard,
-          detailDailies,
-          detailWeeklies,
-          detailElapsed,
-          detailFull,
-        ]) {
-          el.textContent = "";
-        }
-        resCompanion.textContent = placeholder;
-        resCompanionWasted.textContent = placeholder;
-        detailCompanionStored.textContent = "";
-        trCalendar.innerHTML = "";
-        trLegend.innerHTML = "";
-        calHint.textContent = "";
-        calControls.hidden = true;
-        calSb.hidden = true;
-        trTotal.textContent = "";
-        spendNote.textContent = "";
-        schedule.innerHTML = "";
-        scheduleNote.textContent = "";
+      function fail(el, message) {
+        el.textContent = message;
+        el.hidden = false;
       }
 
       function calculate() {
         errorEl.hidden = true;
-
-        const currentRaw = inputCurrent.value;
-        const current = currentRaw === "" ? 0 : Number(currentRaw);
-        const startCondensedRaw = inputCurrentCondensed.value;
-        const startCondensed =
-          startCondensedRaw === "" ? 0 : Number(startCondensedRaw);
-        const futureStr = inputFuture.value;
-
-        if (!Number.isFinite(current) || current < 0 || current > RESIN_CAP) {
-          errorEl.textContent = `Current resin must be between 0 and ${RESIN_CAP}.`;
-          errorEl.hidden = false;
-          clearResults();
-          return;
-        }
-
-        if (
-          !Number.isFinite(startCondensed) ||
-          startCondensed < 0 ||
-          startCondensed > MAX_CONDENSED
-        ) {
-          errorEl.textContent = `Current condensed must be between 0 and ${MAX_CONDENSED}.`;
-          errorEl.hidden = false;
-          clearResults();
-          return;
-        }
-
-        if (!futureStr) {
-          clearResults();
-          return;
-        }
-
-        const future = new Date(futureStr);
-        if (Number.isNaN(future.getTime())) {
-          errorEl.textContent = "Invalid date.";
-          errorEl.hidden = false;
-          clearResults();
-          return;
-        }
+        companionError.hidden = true;
 
         const now = new Date();
-        const diffMs = future.getTime() - now.getTime();
+        const server = SERVERS[selectServer.value]
+          ? selectServer.value
+          : "asia";
+        // Runs only mean anything while the trounce source is switched on.
+        inputWeeklyRuns.disabled = !inputTrounceOn.checked;
 
-        if (diffMs < 0) {
-          errorEl.textContent = "That date is in the past.";
-          errorEl.hidden = false;
-          clearResults();
+        const current = readNumber(inputCurrent, 0);
+        const condensed = readNumber(inputCurrentCondensed, 0);
+        const daily = readNumber(inputDailySpend, DAILY_SPEND_DEFAULT);
+        const runs = inputTrounceOn.checked
+          ? readNumber(inputWeeklyRuns, WEEKLY_RUNS_DEFAULT)
+          : 0;
+        const companionCurrent = readNumber(inputCompanion, 0);
+        const companionRate = readNumber(
+          inputCompanionRate,
+          COMPANION_RATE_DEFAULT,
+        );
+
+        const bad = [
+          [
+            !Number.isFinite(current) || current < 0 || current > RESIN_CAP,
+            `Current resin must be between 0 and ${RESIN_CAP}.`,
+          ],
+          [
+            !Number.isFinite(condensed) ||
+              condensed < 0 ||
+              condensed > MAX_CONDENSED,
+            `Condensed held must be between 0 and ${MAX_CONDENSED}.`,
+          ],
+          [
+            !Number.isFinite(daily) || daily < 0,
+            "Daily spend must be 0 or more.",
+          ],
+          [
+            !Number.isFinite(runs) || runs < 0,
+            "Weekly runs must be 0 or more.",
+          ],
+        ].find(([broken]) => broken);
+        if (bad) {
+          fail(errorEl, bad[1]);
           return;
         }
 
-        const minutes = diffMs / 60000;
-        const resinPool = current + minutes / MIN_PER_RESIN;
-        const hoard = bankResin(resinPool, startCondensed);
+        const companionBad = [
+          [
+            !Number.isFinite(companionCurrent) ||
+              companionCurrent < 0 ||
+              companionCurrent > COMPANION_CAP,
+            `Current must be between 0 and ${COMPANION_CAP}.`,
+          ],
+          [
+            !Number.isFinite(companionRate) || companionRate < 0,
+            "Rate must be 0 or more.",
+          ],
+        ].find(([broken]) => broken);
+        if (companionBad) {
+          fail(companionError, companionBad[1]);
+          return;
+        }
 
-        resCondensed.textContent = `${hoard.condensed} / ${MAX_CONDENSED}`;
-        resResin.textContent = `${hoard.resin} / ${RESIN_CAP}`;
-        resWasted.textContent = String(hoard.overflow);
-        resElapsed.textContent = formatElapsed(minutes);
-        detailElapsed.textContent = `until ${fmtDateTime(future)}`;
-        renderMaxOut(current, startCondensed, future, now);
+        const plan = resinPlan(current, condensed, daily, runs, now);
+        const companion = companionPlan(companionCurrent, companionRate, now);
+        const banner = nextBanner(server, now);
 
-        renderSpending(
-          current,
-          startCondensed,
-          resinPool,
-          minutes,
-          future,
+        // The range has to cover every marker line at least once, plus whatever
+        // the bars need — but a bar that fills at a crawl would otherwise stretch
+        // the axis until nothing else on it is legible, so it gets clipped.
+        let end = addDaysLocal(now, MIN_HORIZON_DAYS);
+        for (const occ of nextOccurrences(server, now)) {
+          if (occ.date > end) end = occ.date;
+        }
+        for (const stage of plan.stages) {
+          if (stage.at && stage.at > end) end = stage.at;
+        }
+        if (companion.at && companion.at > end) end = companion.at;
+        const ceiling = addDaysLocal(now, MAX_HORIZON_DAYS);
+        if (end > ceiling) end = ceiling;
+
+        const range = {
+          start: addDaysLocal(startOfDay(now), -PAD_DAYS_BEFORE),
+          end: addDaysLocal(startOfDay(end), PAD_DAYS_AFTER),
+        };
+        const events = [
+          ...eventOccurrences("banner", server, range.start, range.end),
+          ...eventOccurrences("stygian", server, range.start, range.end),
+        ].sort((a, b) => a.date - b.date);
+
+        const state = {
           now,
-        );
-        const plan = renderTransientCalendar(future, now);
-        renderCompanionship(future, now);
+          server,
+          current,
+          range,
+          events,
+          plan,
+          companion,
+          banner,
+        };
+        renderResinChart(state);
+        renderCompanionChart(state);
       }
 
       try {
@@ -2510,83 +1942,36 @@
       }
 
       const savedServer = getCookie(COOKIE_SERVER);
-      const savedEvent = getCookie(COOKIE_EVENT);
       selectServer.value = SERVERS[savedServer]
         ? savedServer
         : detectClosestServer();
-
-      if (EVENTS[savedEvent]) {
-        const date = nextEventDate(savedEvent, selectServer.value);
-        inputFuture.value = toLocalDatetimeValue(date);
-      } else {
-        inputFuture.value = toLocalDatetimeValue(
-          new Date(Date.now() + 24 * 60 * 60 * 1000),
-        );
-      }
-      refreshButtonStates();
+      restoreInputs();
 
       selectServer.addEventListener("change", () => {
         setCookie(COOKIE_SERVER, selectServer.value);
-        // If a preset is currently active, recompute its date for the new server.
-        const active = eventButtons.find((b) => b.classList.contains("active"));
-        if (active) {
-          applyEvent(active.dataset.event);
-        } else {
-          refreshButtonStates();
-        }
-      });
-
-      for (const btn of eventButtons) {
-        btn.addEventListener("click", () => applyEvent(btn.dataset.event));
-      }
-
-      const numberInputs = [
-        inputCurrent,
-        inputCurrentCondensed,
-        inputDailySpend,
-        inputWeeklyRuns,
-        inputCompanion,
-        inputCompanionRate,
-      ];
-
-      calScroll.addEventListener("scroll", updateCalControls, {
-        passive: true,
-      });
-      window.addEventListener("resize", updateCalControls);
-      calLeft.addEventListener("click", () => stepCalendar(-1));
-      calRight.addEventListener("click", () => stepCalendar(1));
-      calThumb.addEventListener("pointerdown", beginThumbDrag);
-      calThumb.addEventListener("pointermove", (event) => {
-        if (sbDrag) {
-          calScroll.scrollLeft =
-            sbDrag.from + (event.clientX - sbDrag.x) * sbDrag.ratio;
-        }
-      });
-      calThumb.addEventListener("pointerup", endThumbDrag);
-      calThumb.addEventListener("pointercancel", endThumbDrag);
-      calSb.addEventListener("pointerdown", jumpToTrack);
-
-      for (const el of numberInputs) {
-        el.addEventListener("focus", () => el.select());
-        el.addEventListener("input", calculate);
-      }
-      inputFuture.addEventListener("input", () => {
-        // User edited the date manually. Drop the saved preset so reloads honor the custom date.
-        setCookie(COOKIE_EVENT, "");
-        refreshButtonStates();
         calculate();
       });
 
-      // Keep the page live: re-evaluate "next" event timestamps every minute.
-      setInterval(() => {
-        const active = eventButtons.find((b) => b.classList.contains("active"));
-        if (active) {
-          const date = nextEventDate(active.dataset.event, selectServer.value);
-          inputFuture.value = toLocalDatetimeValue(date);
+      for (const input of [...Object.values(PERSISTED), inputTrounceOn]) {
+        if (input.type === "number") {
+          input.addEventListener("focus", () => input.select());
         }
-        refreshButtonStates();
-        calculate();
-      }, 60000);
+        input.addEventListener("input", () => {
+          saveInputs();
+          calculate();
+        });
+      }
+
+      // Percentages are relative to the card, so a resize changes where every
+      // pill lands — and the whole chart is cheap enough to simply redraw.
+      let resizeTimer = null;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(calculate, 120);
+      });
+
+      // Keep the page live: "now" moves, and so does everything measured from it.
+      setInterval(calculate, 60000);
 
       calculate();
     </script>
