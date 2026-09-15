@@ -318,27 +318,6 @@
           transparent 4px 9px
         );
       }
-      /* Sits over the blocks, so a stretch split into days still reads as one
-         labelled thing. White on stripes needs the shadow to hold up over the
-         pale gaps between them. */
-      .tl-seg-text {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 1.45rem;
-        font-size: 0.6rem;
-        font-weight: 600;
-        line-height: 1;
-        color: #fff;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
-        white-space: nowrap;
-        overflow: hidden;
-        pointer-events: none;
-      }
       .tl-seg.mid {
         border-radius: 0;
       }
@@ -888,7 +867,7 @@
 
       function paint(node, triple) {
         node.style.setProperty("--seg", rgb(triple));
-        node.style.setProperty("--seg-soft", rgba(triple, 0.28));
+        node.style.setProperty("--seg-soft", rgba(triple, 0.18));
       }
 
       function fmtDay(date) {
@@ -1412,19 +1391,6 @@
         return out;
       }
 
-      // The stretch's name rides above its blocks rather than inside one of
-      // them, so chunking a stretch into days doesn't cost it its label.
-      function addStretchLabel(chart, track, from, to, text) {
-        const left = chart.pct(from);
-        const width = chart.pct(to) - left;
-        if (!chart.fits(text, width)) return;
-        const label = el("span", "tl-seg-text");
-        label.style.left = `${left}%`;
-        label.style.width = `${width}%`;
-        label.textContent = text;
-        track.appendChild(label);
-      }
-
       function readoutRow(host, key, value, tone) {
         const row = el("div", "readout-row");
         const k = el("span", "readout-key");
@@ -1488,7 +1454,6 @@
                 if (seg) drawn.push(seg);
               });
             }
-            addStretchLabel(chart, track, cursor, end, stage.label);
             if (open) break;
             cursor = to;
           }
@@ -1698,10 +1663,10 @@
           resinVerdict.textContent = `You reach ${banner.name} on ${fmtDate(banner.date)} with ${formatGap(realistic.at - banner.date)} of headroom still to go. Nothing wasted.`;
         }
 
-        renderResinLegend(groups, banner, now);
+        renderResinLegend(groups, banner, now, plan);
       }
 
-      function renderResinLegend(groups, banner, now) {
+      function renderResinLegend(groups, banner, now, plan) {
         for (const { source, ops } of groups) {
           const keepCount = ops.filter((op) => op.keep).length;
           const entry = el("div", "leg-src");
@@ -1756,17 +1721,30 @@
         note.textContent = `Transient Resin is stored as an item, so it doesn't count against your 200 cap — each copy banks +60 on top of the bar. Colour marks which week a copy comes from, so a change of colour in a lane is where one copy hands over to the next. Faded copies can't reach ${banner.name}.`;
         resinLegend.appendChild(note);
 
+        // Nothing is written on the bars, so the key is what tells you which
+        // colour is which — and it carries the numbers those stretches came
+        // from rather than describing them in the abstract.
+        const [, daily, trounce] = plan.stages;
         const keys = el("div", "leg-keys");
         const swatches = [
-          ["solid", SEG_COLORS.hoard, "Resin you'd bank by hoarding"],
-          ["striped", SEG_COLORS.daily, "Extra time your daily spend buys"],
-          ["striped", SEG_COLORS.trounce, "Extra time trounce runs buy"],
+          ["solid", SEG_COLORS.hoard, "Filling up on regen alone"],
           [
-            "hollow",
-            PERIOD_COLORS[0],
-            "Transient copy: yours until it expires",
+            "striped",
+            SEG_COLORS.daily,
+            `Extra days your ${daily.label} spend buys`,
           ],
         ];
+        if (trounce.spend !== daily.spend) {
+          swatches.push([
+            "striped",
+            SEG_COLORS.trounce,
+            `Extra days ${trounce.label} runs buy`,
+          ]);
+        }
+        swatches.push(
+          ["solid", PERIOD_COLORS[0], "Transient copy: still claimable"],
+          ["hollow", PERIOD_COLORS[0], "…then yours until it expires"],
+        );
         for (const [cls, color, label] of swatches) {
           const item = el("span");
           const swatch = el("i", `leg-swatch ${cls}`);
@@ -1809,7 +1787,6 @@
             to: companion.at > range.end ? null : companion.at,
             fill: "solid",
             color: SEG_COLORS.companion,
-            text: `full ${fmtDay(companion.at)}`,
             title: `Caps at ${COMPANION_CAP} on ${fmtDateTime(companion.at)}.`,
           });
           if (seg) seg.classList.add("first", "last");
