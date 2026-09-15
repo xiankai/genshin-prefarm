@@ -317,7 +317,27 @@
           var(--seg) 0 4px,
           transparent 4px 9px
         );
-        color: var(--text);
+      }
+      /* Sits over the blocks, so a stretch split into days still reads as one
+         labelled thing. White on stripes needs the shadow to hold up over the
+         pale gaps between them. */
+      .tl-seg-text {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 1.45rem;
+        font-size: 0.6rem;
+        font-weight: 600;
+        line-height: 1;
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+        white-space: nowrap;
+        overflow: hidden;
+        pointer-events: none;
       }
       .tl-seg.mid {
         border-radius: 0;
@@ -868,7 +888,7 @@
 
       function paint(node, triple) {
         node.style.setProperty("--seg", rgb(triple));
-        node.style.setProperty("--seg-soft", rgba(triple, 0.16));
+        node.style.setProperty("--seg-soft", rgba(triple, 0.28));
       }
 
       function fmtDay(date) {
@@ -1362,7 +1382,9 @@
         const seg = el("i", `tl-seg ${spec.fill}`);
         paint(seg, spec.color);
         seg.style.left = `${left}%`;
-        seg.style.width = `${width}%`;
+        // A hairline of card showing through is what makes a run of day blocks
+        // countable; without it the borders merge into the stripes.
+        seg.style.width = spec.gap ? `calc(${width}% - 1px)` : `${width}%`;
         if (spec.to === null) seg.classList.add("clip-right");
         // Only label it when the words will actually fit.
         if (spec.text && chart.fits(spec.text, width)) {
@@ -1371,6 +1393,36 @@
         if (spec.title) seg.title = spec.title;
         track.appendChild(seg);
         return seg;
+      }
+
+      // Split a span at every local midnight, so a stretch can be drawn as the
+      // run of days it actually is rather than as one undifferentiated block.
+      function dayChunks(from, to) {
+        const out = [];
+        let cursor = from;
+        for (
+          let edge = addDaysLocal(startOfDay(from), 1);
+          edge < to;
+          edge = addDaysLocal(edge, 1)
+        ) {
+          out.push([cursor, edge]);
+          cursor = edge;
+        }
+        out.push([cursor, to]);
+        return out;
+      }
+
+      // The stretch's name rides above its blocks rather than inside one of
+      // them, so chunking a stretch into days doesn't cost it its label.
+      function addStretchLabel(chart, track, from, to, text) {
+        const left = chart.pct(from);
+        const width = chart.pct(to) - left;
+        if (!chart.fits(text, width)) return;
+        const label = el("span", "tl-seg-text");
+        label.style.left = `${left}%`;
+        label.style.width = `${width}%`;
+        label.textContent = text;
+        track.appendChild(label);
       }
 
       function readoutRow(host, key, value, tone) {
@@ -1403,19 +1455,41 @@
           for (const stage of plan.stages) {
             if (stage.at && stage.at <= cursor) continue;
             const to = stage.at;
-            const seg = addSegment(chart, track, {
-              from: cursor,
-              to: to === null ? null : to,
-              fill: stage.key === "hoard" ? "solid" : "striped",
-              color: SEG_COLORS[stage.key],
-              text: stage.label,
-              title:
-                to === null
-                  ? `At ${fmtNum(stage.spend)} resin a day you spend faster than you regenerate — nothing ever fills up.`
-                  : `${stage.label}: full at ${fmtDateTime(to)}.`,
-            });
-            if (seg) drawn.push(seg);
-            if (to === null) break;
+            const open = to === null;
+            const end = open ? range.end : to;
+            const title = open
+              ? `At ${fmtNum(stage.spend)} resin a day you spend faster than you regenerate — nothing ever fills up.`
+              : `${stage.label}: full at ${fmtDateTime(to)}.`;
+            const color = SEG_COLORS[stage.key];
+
+            if (stage.key === "hoard") {
+              const seg = addSegment(chart, track, {
+                from: cursor,
+                to: end,
+                fill: "solid",
+                color,
+                title,
+              });
+              if (seg) drawn.push(seg);
+            } else {
+              // One block per calendar day, so the days your spending buys back
+              // can be counted off against the dates above them.
+              const chunks = dayChunks(cursor, end);
+              chunks.forEach(([from, until], i) => {
+                const last = open && i === chunks.length - 1;
+                const seg = addSegment(chart, track, {
+                  from,
+                  to: last ? null : until,
+                  fill: "striped",
+                  color,
+                  title,
+                  gap: !last,
+                });
+                if (seg) drawn.push(seg);
+              });
+            }
+            addStretchLabel(chart, track, cursor, end, stage.label);
+            if (open) break;
             cursor = to;
           }
           // Square off the joins so the stretches read as one continuous bar.
