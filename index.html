@@ -185,6 +185,60 @@
         color: var(--muted);
       }
 
+      /* The zoom/pan strip. Panning is by button rather than by scroll: the
+         chart is laid out in percentages of its date range, so moving the
+         window means redrawing it — a click is one redraw, a scroll is many. */
+      .tl-controls {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.35rem;
+        margin-bottom: 0.6rem;
+      }
+      .tl-zoom {
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .tl-opt,
+      .tl-nav {
+        font-family: inherit;
+        font-size: 0.7rem;
+        color: var(--muted);
+        background: var(--bg);
+        border: 0;
+        padding: 0.3rem 0.6rem;
+        cursor: pointer;
+        line-height: 1.3;
+      }
+      .tl-opt + .tl-opt {
+        border-left: 1px solid var(--border);
+      }
+      .tl-opt[aria-pressed="true"] {
+        background: var(--accent-bright);
+        color: var(--bg);
+      }
+      .tl-nav {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.3rem 0.5rem;
+      }
+      .tl-opt:hover:not([aria-pressed="true"]),
+      .tl-nav:hover:not(:disabled) {
+        color: var(--accent-bright);
+        border-color: var(--accent);
+      }
+      .tl-nav:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .tl-opt:focus-visible,
+      .tl-nav:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+
       /* --- Timeline ---------------------------------------------------- */
       /* Everything is positioned as a percentage of the date range, so a chart
          always fits its card at any width and there is nothing to scroll. Days
@@ -268,6 +322,11 @@
         bottom: 0;
         border-left: 1px solid rgba(107, 92, 67, 0.2);
       }
+      /* Day lines, drawn only when zoomed in — faint enough that the Monday
+         resets still carry the rhythm of the chart. */
+      .tl-week.minor {
+        border-left-color: rgba(107, 92, 67, 0.08);
+      }
       .tl-line {
         position: absolute;
         top: 0;
@@ -308,18 +367,40 @@
         background: var(--seg);
         color: var(--bg);
       }
-      /* Striped rather than another solid colour: these stretches are earned by
-         spending, so they shouldn't read as banked resin at a glance. */
-      .tl-seg.striped {
+      /* The same hue at a fraction of the strength, rather than another solid
+         colour: these stretches are earned by spending, so they shouldn't read
+         as banked resin at a glance. The full-strength border keeps each day
+         block's edge crisp against the one beside it. */
+      .tl-seg.soft {
         background-color: var(--seg-soft);
-        background-image: repeating-linear-gradient(
-          45deg,
-          var(--seg) 0 4px,
-          transparent 4px 9px
-        );
       }
       .tl-seg.mid {
         border-radius: 0;
+      }
+      /* Placed by `vert`: top and height come from the pile, so the usual
+         centring has to get out of the way. */
+      .tl-seg.vert {
+        transform: none;
+        min-height: 2px;
+      }
+      /* Where a Condensed becomes craftable. */
+      .tl-cmark {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-left: 1px dashed var(--accent-bright);
+        z-index: 3;
+      }
+      .tl-cmark span {
+        position: absolute;
+        top: -0.1rem;
+        left: 0.1rem;
+        font-size: 0.5rem;
+        font-weight: 600;
+        color: var(--accent-bright);
+        background: var(--card);
+        padding: 0 0.1rem;
+        border-radius: 2px;
       }
       .tl-seg.first {
         border-radius: 3px 0 0 3px;
@@ -362,8 +443,8 @@
         color: var(--bg);
         border-radius: 3px 0 0 3px;
       }
-      /* Hollow rather than hatched: the bar is too short for stripes to read,
-         and the stripes are already spoken for by the resin bar above. */
+      /* Hollow rather than tinted: a lane is too short for a fill to read, and
+         the tint is already spoken for by the resin bar above. */
       .tl-lane .tl-seg.hold {
         justify-content: flex-end;
         border-left: 0;
@@ -431,13 +512,8 @@
         background: var(--seg, transparent);
         flex-shrink: 0;
       }
-      .leg-swatch.striped {
-        background-color: var(--seg-soft);
-        background-image: repeating-linear-gradient(
-          45deg,
-          var(--seg) 0 3px,
-          transparent 3px 7px
-        );
+      .leg-swatch.soft {
+        background: var(--seg-soft);
       }
       .leg-swatch.hollow {
         background: transparent;
@@ -451,6 +527,9 @@
       }
       .leg-swatch.line.stygian {
         border-left: 2px dashed var(--danger);
+      }
+      .leg-swatch.line.condensed {
+        border-left: 1px dashed var(--accent-bright);
       }
 
       /* The chart's caption: the dates the bar ends on, spelled out. */
@@ -569,13 +648,16 @@
             />
           </div>
           <div class="field">
-            <label class="label-check" for="weekly-runs">
+            <!-- Points at the checkbox, not the number field: the words name
+                 the toggle, so clicking them has to flip it. -->
+            <label class="label-check" for="trounce-on">
               <input type="checkbox" id="trounce-on" checked />
               Trounce runs/week
             </label>
             <input
               type="number"
               id="weekly-runs"
+              aria-label="Trounce runs per week"
               min="0"
               max="21"
               value="3"
@@ -603,11 +685,59 @@
         <p class="blurb">
           The bar runs from now to the moment everything is full — 200 in the
           bar and every Condensed slot used — which is when regen starts going
-          in the bin. Solid is what pure hoarding gets you; each striped stretch
-          is the extra time your spending buys back. Below it, every copy of
-          Transient Resin you can still grab: solid while it's claimable, hollow
-          for the days it's yours before it expires.
+          in the bin. One column per day, filled as far as you'll have banked by
+          the end of it — so the bar fills as the days pass and tops out exactly
+          when storage does. The colour says which assumption bought that day:
+          hoarding alone, then the extra days your spending buys back. A dashed
+          <em>craft</em> tick marks where each Condensed becomes craftable.
+          Below it, every copy of Transient Resin you can still grab: solid
+          while it's claimable, hollow for the days it's yours before it
+          expires.
         </p>
+        <div class="tl-controls">
+          <button
+            type="button"
+            class="tl-nav"
+            data-step="-1"
+            aria-label="Move the window back a week"
+          >
+            ◀
+          </button>
+          <div class="tl-zoom" role="group" aria-label="Timeline range">
+            <button
+              type="button"
+              class="tl-opt"
+              data-days="0"
+              aria-pressed="true"
+            >
+              Fit
+            </button>
+            <button
+              type="button"
+              class="tl-opt"
+              data-days="30"
+              aria-pressed="false"
+            >
+              1 month
+            </button>
+            <button
+              type="button"
+              class="tl-opt"
+              data-days="7"
+              aria-pressed="false"
+            >
+              1 week
+            </button>
+          </div>
+          <button
+            type="button"
+            class="tl-nav"
+            data-step="1"
+            aria-label="Move the window forward a week"
+          >
+            ▶
+          </button>
+        </div>
         <div class="tl" id="resin-tl"></div>
         <div class="readout" id="resin-readout"></div>
         <div class="verdict" id="resin-verdict"></div>
@@ -658,6 +788,53 @@
           aria-live="assertive"
           hidden
         ></div>
+        <!-- The same window as the resin chart, driven from either card: both
+             charts share an axis, so zooming one without the other would put
+             two different date ranges on the same page. -->
+        <div class="tl-controls">
+          <button
+            type="button"
+            class="tl-nav"
+            data-step="-1"
+            aria-label="Move the window back a week"
+          >
+            ◀
+          </button>
+          <div class="tl-zoom" role="group" aria-label="Timeline range">
+            <button
+              type="button"
+              class="tl-opt"
+              data-days="0"
+              aria-pressed="true"
+            >
+              Fit
+            </button>
+            <button
+              type="button"
+              class="tl-opt"
+              data-days="30"
+              aria-pressed="false"
+            >
+              1 month
+            </button>
+            <button
+              type="button"
+              class="tl-opt"
+              data-days="7"
+              aria-pressed="false"
+            >
+              1 week
+            </button>
+          </div>
+          <button
+            type="button"
+            class="tl-nav"
+            data-step="1"
+            aria-label="Move the window forward a week"
+          >
+            ▶
+          </button>
+        </div>
         <div class="tl" id="companion-tl"></div>
         <div class="readout" id="companion-readout"></div>
         <div class="verdict" id="companion-verdict"></div>
@@ -767,6 +944,14 @@
       // readable axis) and never more than this, however slowly the bar fills.
       const MIN_HORIZON_DAYS = 14;
       const MAX_HORIZON_DAYS = 150;
+      // The arrows move by a whole week, because the gridlines, the resets and
+      // every Transient window are weekly — a week is the unit that lines up.
+      const PAN_STEP_DAYS = 7;
+      // Below this span a day is wide enough to be worth its own gridline.
+      const DAILY_GRID_MAX_DAYS = 21;
+      // How much of a bar row the blocks occupy, as a percentage of its height.
+      // Matches the centred height the flat layout has always used.
+      const BAR_BAND = 76;
 
       const MONTHS = [
         "Jan",
@@ -841,6 +1026,14 @@
       const resinReadout = document.getElementById("resin-readout");
       const resinVerdict = document.getElementById("resin-verdict");
       const resinLegend = document.getElementById("resin-legend");
+      const viewOpts = Array.from(
+        document.querySelectorAll(".tl-opt[data-days]"),
+      );
+      // Both cards carry a copy of the strip, and every copy drives the one
+      // shared window — so they're wired and synced as one set.
+      const viewNavs = Array.from(
+        document.querySelectorAll(".tl-nav[data-step]"),
+      );
       const companionTl = document.getElementById("companion-tl");
       const companionReadout = document.getElementById("companion-readout");
       const companionVerdict = document.getElementById("companion-verdict");
@@ -865,9 +1058,13 @@
         return `rgba(${triple[0]}, ${triple[1]}, ${triple[2]}, ${alpha})`;
       }
 
+      // Strong enough to hold its hue against the card, weak enough that a full
+      // block beside it is unmistakably the darker of the two.
+      const SOFT_ALPHA = 0.35;
+
       function paint(node, triple) {
         node.style.setProperty("--seg", rgb(triple));
-        node.style.setProperty("--seg-soft", rgba(triple, 0.18));
+        node.style.setProperty("--seg-soft", rgba(triple, SOFT_ALPHA));
       }
 
       function fmtDay(date) {
@@ -1258,25 +1455,35 @@
         const fits = (text, widthPct) =>
           (widthPct / 100) * trackPx > text.length * 4.4 + 8;
 
-        // Mondays: the weekly reset, and the only gridline worth drawing. Labels
-        // thin out until they stop running into each other.
-        const pxPerWeek = (7 / (span / 86400000)) * trackPx;
-        const labelEvery = Math.max(1, Math.ceil(46 / pxPerWeek));
+        // Zoomed out, the Monday reset is the only gridline worth drawing.
+        // Zoomed in there is room for every day, and the Mondays stay darker so
+        // the weekly cadence is still what you read first. Labels thin out until
+        // they stop running into each other.
+        const spanDays = span / 86400000;
+        const tickDays = spanDays <= DAILY_GRID_MAX_DAYS ? 1 : 7;
+        const pxPerTick = (tickDays / spanDays) * trackPx;
+        const labelEvery = Math.max(1, Math.ceil(46 / pxPerTick));
         let index = 0;
         for (
-          let monday = mondayOfWeek(range.start);
-          monday <= range.end;
-          monday = addDaysLocal(monday, 7), index += 1
+          let tick =
+            tickDays === 1
+              ? startOfDay(range.start)
+              : mondayOfWeek(range.start);
+          tick <= range.end;
+          tick = addDaysLocal(tick, tickDays), index += 1
         ) {
-          if (monday < range.start) continue;
-          const line = el("i", "tl-week");
-          line.style.left = `${pct(monday)}%`;
+          if (tick < range.start) continue;
+          const line = el(
+            "i",
+            tick.getDay() === 1 ? "tl-week" : "tl-week minor",
+          );
+          line.style.left = `${pct(tick)}%`;
           grid.appendChild(line);
           // Skip anything too near the right edge — the text would overflow.
-          if (index % labelEvery !== 0 || rawPct(monday) > 94) continue;
+          if (index % labelEvery !== 0 || rawPct(tick) > 94) continue;
           const label = el("span", "tl-date");
-          label.style.left = `${pct(monday)}%`;
-          label.textContent = fmtDay(monday);
+          label.style.left = `${pct(tick)}%`;
+          label.textContent = fmtDay(tick);
           dates.track.appendChild(label);
         }
 
@@ -1295,9 +1502,17 @@
           marks.track.appendChild(pill);
         };
 
-        addLine(now, "now");
-        addPill(now, "now", "Now");
+        // Zoomed in, "now" can sit outside the window — drawing it anyway would
+        // clamp it to an edge and claim the window starts or ends at this
+        // moment, which is exactly the thing the reader is checking.
+        const inRange = (date) => date >= range.start && date <= range.end;
+
+        if (inRange(now)) {
+          addLine(now, "now");
+          addPill(now, "now", "Now");
+        }
         for (const event of events) {
+          if (!inRange(event.date)) continue;
           addLine(event.date, event.key);
           addPill(
             event.date,
@@ -1354,15 +1569,32 @@
       // One stretch of a headline bar. `from`/`to` are moments; a null `to`
       // means it runs off the end of the chart.
       function addSegment(chart, track, spec) {
+        // Measured unclamped first: a stretch that starts before the window or
+        // runs past its end is drawn to the edge and marked as cut off, rather
+        // than being squashed into the visible part.
+        const rawLeft = chart.rawPct(spec.from);
+        const rawRight = spec.to === null ? 100 : chart.rawPct(spec.to);
+        if (rawRight <= 0 || rawLeft >= 100) return null;
         const left = chart.pct(spec.from);
         const right = spec.to === null ? 100 : chart.pct(spec.to);
         const width = right - left;
         if (width <= 0.05) return null;
+        // `vert` places a block within the row rather than across the middle of
+        // it, measured 0–1 from the floor up: that's what lets a day column show
+        // how full storage is rather than only when the stretch ran.
+        if (spec.vert && spec.vert.to - spec.vert.from <= 0.002) return null;
         const seg = el("i", `tl-seg ${spec.fill}`);
         paint(seg, spec.color);
         seg.style.left = `${left}%`;
+        if (spec.vert) {
+          seg.classList.add("vert");
+          seg.style.top = `${(100 - BAR_BAND) / 2 + BAR_BAND * (1 - spec.vert.to)}%`;
+          seg.style.height = `${BAR_BAND * (spec.vert.to - spec.vert.from)}%`;
+        }
+        if (rawLeft < -0.05) seg.classList.add("clip-left");
+        if (rawRight > 100.05) seg.classList.add("clip-right");
         // A hairline of card showing through is what makes a run of day blocks
-        // countable; without it the borders merge into the stripes.
+        // countable; without it the borders merge into one another.
         seg.style.width = spec.gap ? `calc(${width}% - 1px)` : `${width}%`;
         if (spec.to === null) seg.classList.add("clip-right");
         // Only label it when the words will actually fit.
@@ -1401,6 +1633,76 @@
         host.appendChild(row);
       }
 
+      // ---- the bar, as data -------------------------------------------------
+
+      // The headline bar as plain spans — each stage starting where the last one
+      // ended, so it reads as "hoarding gets you this far, spending buys you
+      // these extra stretches". Every layout draws this same shape.
+      function barSpans(plan, range, now) {
+        const spans = [];
+        let cursor = now;
+        for (const stage of plan.stages) {
+          if (stage.at && stage.at <= cursor) continue;
+          const open = stage.at === null;
+          spans.push({
+            stage,
+            open,
+            from: cursor,
+            to: open ? range.end : stage.at,
+            color: SEG_COLORS[stage.key],
+            title: open
+              ? `At ${fmtNum(stage.spend)} resin a day you spend faster than you regenerate — nothing ever fills up.`
+              : `${stage.label}: full at ${fmtDateTime(stage.at)}.`,
+          });
+          if (open) break;
+          cursor = stage.at;
+        }
+        return spans;
+      }
+
+      // One block per calendar day of a span. `dayEnd` is always the real end of
+      // the day even when `to` is null, so a layout can size a block against the
+      // pile at that moment without caring that the bar runs off the chart.
+      function eachDay(span, draw) {
+        const chunks = dayChunks(span.from, span.to);
+        chunks.forEach(([from, until], i) => {
+          const last = span.open && i === chunks.length - 1;
+          draw(from, last ? null : until, until, last);
+        });
+      }
+
+      // The pile you're actually building: regen minus everything you spend,
+      // accumulated. Expressed as a fraction of total headroom, so it reaches
+      // the top exactly where the bar ends — that's the same moment.
+      function savingsCurve(plan, current, now) {
+        const realistic = plan.stages[plan.stages.length - 1];
+        if (!(realistic.rate > 0) || plan.headroom <= 0) return null;
+
+        const kept = (date) =>
+          Math.min(
+            plan.headroom,
+            Math.max(0, ((date - now) / 86400000) * realistic.rate),
+          );
+
+        // The 200 in the bar fills before any of it can become Condensed, and
+        // then one per 60 after that — the same reckoning as the readout.
+        const condensed = [];
+        for (let n = 1; n <= plan.slots; n += 1) {
+          const need = RESIN_CAP - current + (n - 1) * RESIN_PER_CONDENSED;
+          condensed.push({
+            n,
+            at: addMs(now, (need / realistic.rate) * 86400000),
+          });
+        }
+
+        return {
+          at: (date) => kept(date) / plan.headroom,
+          say: (date) =>
+            `Banked by then: ${fmtNum(kept(date))} of ${fmtNum(plan.headroom)}.`,
+          condensed,
+        };
+      }
+
       // ---- charts ----------------------------------------------------------
 
       function renderResinChart(state) {
@@ -1414,62 +1716,81 @@
             "Already full — every point of regen from here is wasted.";
           track.appendChild(note);
         } else {
-          // Each stage starts where the previous one ended, so the bar reads as
-          // "hoarding gets you this far, spending buys you these extra stretches".
-          let cursor = now;
+          const spans = barSpans(plan, range, now);
+          const savings = savingsCurve(plan, state.current, now);
           const drawn = [];
-          for (const stage of plan.stages) {
-            if (stage.at && stage.at <= cursor) continue;
-            const to = stage.at;
-            const open = to === null;
-            const end = open ? range.end : to;
-            const title = open
-              ? `At ${fmtNum(stage.spend)} resin a day you spend faster than you regenerate — nothing ever fills up.`
-              : `${stage.label}: full at ${fmtDateTime(to)}.`;
-            const color = SEG_COLORS[stage.key];
 
-            if (stage.key === "hoard") {
-              const seg = addSegment(chart, track, {
-                from: cursor,
-                to: end,
+          for (const span of spans) {
+            eachDay(span, (from, to, dayEnd, last) => {
+              const shared = {
+                from,
+                to,
+                color: span.color,
+                title: span.title,
+                gap: !last,
+              };
+              // How full storage is by the end of this day — the running total,
+              // as a fraction of everything you can still bank. One column per
+              // day, filling from the floor as the pile grows.
+              const filled = savings ? savings.at(dayEnd) : 0;
+
+              const pile = addSegment(chart, track, {
+                ...shared,
                 fill: "solid",
-                color,
-                title,
+                vert: { from: 0, to: filled },
+                title: `${span.title} ${savings ? savings.say(dayEnd) : ""}`,
               });
-              if (seg) drawn.push(seg);
-            } else {
-              // One block per calendar day, so the days your spending buys back
-              // can be counted off against the dates above them.
-              const chunks = dayChunks(cursor, end);
-              chunks.forEach(([from, until], i) => {
-                const last = open && i === chunks.length - 1;
-                const seg = addSegment(chart, track, {
-                  from,
-                  to: last ? null : until,
-                  fill: "striped",
-                  color,
-                  title,
-                  gap: !last,
-                });
-                if (seg) drawn.push(seg);
+              const room = addSegment(chart, track, {
+                ...shared,
+                fill: "soft",
+                vert: { from: filled, to: 1 },
               });
-            }
-            if (open) break;
-            cursor = to;
+              if (pile) drawn.push(pile);
+              if (room) drawn.push(room);
+            });
           }
-          // Square off the joins so the stretches read as one continuous bar.
-          for (let i = 1; i < drawn.length - 1; i += 1) {
-            drawn[i].classList.add("mid");
+          // An empty row zoomed in reads as a broken chart, so say which side of
+          // the window the bar is on instead.
+          if (!drawn.length) {
+            const note = el("span", "tl-empty");
+            note.textContent =
+              now >= range.end
+                ? "The bar hasn't started yet at this point — scroll forward."
+                : "Everything is full before this window — scroll back.";
+            track.appendChild(note);
           }
-          if (drawn.length > 1) {
-            drawn[0].classList.add("first");
-            drawn[drawn.length - 1].classList.add("last");
+
+          // Where each Condensed becomes craftable — the only thing in here you
+          // can act on before the bar itself runs out.
+          if (savings) {
+            savings.condensed.forEach((mark, i) => {
+              if (mark.at < range.start || mark.at > range.end) return;
+              const tick = el("i", "tl-cmark");
+              tick.style.left = `${chart.pct(mark.at)}%`;
+              tick.title = `Condensed #${mark.n} craftable — ${fmtDateTime(mark.at)}.`;
+              // Zoomed out these land a day or so apart, so the word only goes
+              // on when there's room before the next one. The line still marks
+              // the moment either way, and the key says what it means.
+              const next = savings.condensed[i + 1];
+              const room =
+                (next ? chart.pct(next.at) : 100) - chart.pct(mark.at);
+              // Crafts land about a day apart, so "just fits" still reads as one
+              // smear of text — ask for half as much again before writing it.
+              if (chart.fits("craft", room / 1.5)) {
+                const tag = el("span");
+                tag.textContent = "craft";
+                tick.appendChild(tag);
+              }
+              track.appendChild(tick);
+            });
           }
         }
 
+        // Worked out over the whole fitted span, not the visible window, so
+        // zooming in never changes what the readout says you'll have banked.
         const groups = TRANSIENT_SOURCES.map((source) => ({
           source,
-          ops: transientOpportunities(source, banner.date, now, range.end),
+          ops: transientOpportunities(source, banner.date, now, state.dataEnd),
         }));
 
         let totalKeep = 0;
@@ -1723,25 +2044,27 @@
 
         // Nothing is written on the bars, so the key is what tells you which
         // colour is which — and it carries the numbers those stretches came
-        // from rather than describing them in the abstract.
+        // from rather than describing them in the abstract. Hue says which
+        // assumption bought the day; fill says how much of it you've banked.
         const [, daily, trounce] = plan.stages;
         const keys = el("div", "leg-keys");
         const swatches = [
           ["solid", SEG_COLORS.hoard, "Filling up on regen alone"],
           [
-            "striped",
+            "solid",
             SEG_COLORS.daily,
             `Extra days your ${daily.label} spend buys`,
           ],
         ];
         if (trounce.spend !== daily.spend) {
           swatches.push([
-            "striped",
+            "solid",
             SEG_COLORS.trounce,
             `Extra days ${trounce.label} runs buy`,
           ]);
         }
         swatches.push(
+          ["soft", SEG_COLORS.hoard, "The room still left above it"],
           ["solid", PERIOD_COLORS[0], "Transient copy: still claimable"],
           ["hollow", PERIOD_COLORS[0], "…then yours until it expires"],
         );
@@ -1753,6 +2076,7 @@
           keys.appendChild(item);
         }
         for (const [cls, label] of [
+          ["line condensed", "Condensed craftable"],
           ["line", "Banner"],
           ["line stygian", "Stygian Onslaught"],
         ]) {
@@ -1789,7 +2113,16 @@
             color: SEG_COLORS.companion,
             title: `Caps at ${COMPANION_CAP} on ${fmtDateTime(companion.at)}.`,
           });
-          if (seg) seg.classList.add("first", "last");
+          if (seg) {
+            seg.classList.add("first", "last");
+          } else {
+            const note = el("span", "tl-empty");
+            note.textContent =
+              now >= range.end
+                ? "The bar hasn't started yet at this point — scroll forward."
+                : "Capped before this window — scroll back.";
+            track.appendChild(note);
+          }
         }
 
         layoutMarks(chart.marksTrack);
@@ -1869,6 +2202,42 @@
         }
         if (typeof saved.trounce === "boolean") {
           inputTrounceOn.checked = saved.trounce;
+        }
+      }
+
+      // ---- view window -----------------------------------------------------
+
+      // 0 means "fit the whole span", the original behaviour. Anything else is
+      // a fixed number of days anchored `panDays` from today.
+      let viewDays = 0;
+      let panDays = 0;
+
+      // The window the charts actually draw. Panning is bounded by the data:
+      // back to where context copies start, forward to the end of the fitted
+      // span, so the arrows can never walk off into empty chart.
+      function viewWindow(fit, now) {
+        if (!viewDays) return { ...fit, minPan: 0, maxPan: 0 };
+        const base = startOfDay(now);
+        const span = Math.round((fit.end - base) / 86400000);
+        const minPan = -CONTEXT_WEEKS * 7;
+        const maxPan = Math.max(0, span - viewDays);
+        panDays = Math.min(maxPan, Math.max(minPan, panDays));
+        const start = addDaysLocal(base, panDays);
+        return { start, end: addDaysLocal(start, viewDays), minPan, maxPan };
+      }
+
+      function syncViewButtons(range) {
+        for (const btn of viewOpts) {
+          btn.setAttribute(
+            "aria-pressed",
+            String(Number(btn.dataset.days) === viewDays),
+          );
+        }
+        for (const btn of viewNavs) {
+          const back = Number(btn.dataset.step) < 0;
+          btn.disabled =
+            !viewDays ||
+            (back ? panDays <= range.minPan : panDays >= range.maxPan);
         }
       }
 
@@ -1962,10 +2331,14 @@
         const ceiling = addDaysLocal(now, MAX_HORIZON_DAYS);
         if (end > ceiling) end = ceiling;
 
-        const range = {
+        const fit = {
           start: addDaysLocal(startOfDay(now), -PAD_DAYS_BEFORE),
           end: addDaysLocal(startOfDay(end), PAD_DAYS_AFTER),
         };
+        // The fitted end stays the basis for every calculation; the window only
+        // decides what you can see of it.
+        const range = viewWindow(fit, now);
+        syncViewButtons(range);
         const events = [
           ...eventOccurrences("banner", server, range.start, range.end),
           ...eventOccurrences("stygian", server, range.start, range.end),
@@ -1976,6 +2349,7 @@
           server,
           current,
           range,
+          dataEnd: fit.end,
           events,
           plan,
           companion,
@@ -2009,6 +2383,23 @@
         }
         input.addEventListener("input", () => {
           saveInputs();
+          calculate();
+        });
+      }
+
+      for (const btn of viewOpts) {
+        btn.addEventListener("click", () => {
+          viewDays = Number(btn.dataset.days);
+          // A new zoom level starts at today rather than wherever the last one
+          // had been scrolled to.
+          panDays = 0;
+          calculate();
+        });
+      }
+
+      for (const btn of viewNavs) {
+        btn.addEventListener("click", () => {
+          panDays += Number(btn.dataset.step) * PAN_STEP_DAYS;
           calculate();
         });
       }
