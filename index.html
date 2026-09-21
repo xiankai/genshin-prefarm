@@ -190,6 +190,45 @@
         color: var(--muted);
       }
 
+      /* One calculator at a time. The strip is the timeline's zoom control a
+         size up — same segmented shape, same selected-state colours — so the
+         page only teaches the idea once. */
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+      }
+      .tab {
+        flex: 1 1 8rem;
+        font-family: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.55rem 0.8rem;
+        cursor: pointer;
+        line-height: 1.3;
+      }
+      .tab[aria-selected="true"] {
+        background: var(--accent-bright);
+        border-color: var(--accent-bright);
+        color: var(--bg);
+        font-weight: 600;
+      }
+      .tab:hover:not([aria-selected="true"]) {
+        color: var(--accent-bright);
+        border-color: var(--accent);
+      }
+      .tab:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      .tab-panel[hidden] {
+        display: none;
+      }
+
       /* The zoom/pan strip. Panning is by button rather than by scroll: the
          chart is laid out in percentages of its date range, so moving the
          window means redrawing it — a click is one redraw, a scroll is many. */
@@ -665,423 +704,483 @@
     <div class="container">
       <h1>Genshin Resin Minmaxer</h1>
       <p class="intro">
-        How far your resin stretches before it stops paying you — drawn against
-        the banners and Stygian Onslaughts you're hoarding for.
+        Three calculators for the one question: what's worth banking before the
+        next banner, and what's going in the bin while you wait for it.
       </p>
 
-      <div class="card">
-        <h2 class="section-title">Your stockpile</h2>
-        <div class="fields">
-          <div class="field">
-            <label for="server-select">Server region</label>
-            <select id="server-select">
-              <option value="asia">Asia (UTC+8)</option>
-              <option value="europe">Europe (UTC+1)</option>
-              <option value="america">America (UTC-5)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="current-resin">Current resin (0–200)</label>
-            <input
-              type="number"
-              id="current-resin"
-              min="0"
-              max="200"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field">
-            <label for="current-condensed">Condensed held (0–5)</label>
-            <input
-              type="number"
-              id="current-condensed"
-              min="0"
-              max="5"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field">
-            <label for="daily-spend">Daily spend (resin/day)</label>
-            <input
-              type="number"
-              id="daily-spend"
-              min="0"
-              max="1000"
-              value="120"
-              step="10"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field">
-            <!-- Points at the checkbox, not the number field: the words name
+      <div class="tabs" role="tablist" aria-label="Calculator">
+        <button
+          type="button"
+          class="tab"
+          role="tab"
+          id="tab-resin"
+          aria-controls="panel-resin"
+          aria-selected="true"
+        >
+          Resin
+        </button>
+        <button
+          type="button"
+          class="tab"
+          role="tab"
+          id="tab-companion"
+          aria-controls="panel-companion"
+          aria-selected="false"
+          tabindex="-1"
+        >
+          Companionship EXP
+        </button>
+        <button
+          type="button"
+          class="tab"
+          role="tab"
+          id="tab-gems"
+          aria-controls="panel-gems"
+          aria-selected="false"
+          tabindex="-1"
+        >
+          Ascension gems
+        </button>
+      </div>
+
+      <section
+        class="tab-panel"
+        id="panel-resin"
+        role="tabpanel"
+        aria-labelledby="tab-resin"
+      >
+        <div class="card">
+          <h2 class="section-title">Your stockpile</h2>
+          <div class="fields">
+            <div class="field">
+              <label for="server-select">Server region</label>
+              <select id="server-select">
+                <option value="asia">Asia (UTC+8)</option>
+                <option value="europe">Europe (UTC+1)</option>
+                <option value="america">America (UTC-5)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="current-resin">Current resin (0–200)</label>
+              <input
+                type="number"
+                id="current-resin"
+                min="0"
+                max="200"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="current-condensed">Condensed held (0–5)</label>
+              <input
+                type="number"
+                id="current-condensed"
+                min="0"
+                max="5"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="daily-spend">Daily spend (resin/day)</label>
+              <input
+                type="number"
+                id="daily-spend"
+                min="0"
+                max="1000"
+                value="120"
+                step="10"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <!-- Points at the checkbox, not the number field: the words name
                  the toggle, so clicking them has to flip it. -->
-            <label class="label-check" for="trounce-on">
-              <input type="checkbox" id="trounce-on" checked />
-              Trounce runs/week
-            </label>
-            <input
-              type="number"
-              id="weekly-runs"
-              aria-label="Trounce runs per week"
-              min="0"
-              max="21"
-              value="3"
-              step="1"
-              inputmode="numeric"
-            />
+              <label class="label-check" for="trounce-on">
+                <input type="checkbox" id="trounce-on" checked />
+                Trounce runs/week
+              </label>
+              <input
+                type="number"
+                id="weekly-runs"
+                aria-label="Trounce runs per week"
+                min="0"
+                max="21"
+                value="3"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
           </div>
+          <div class="hint" id="tz-hint"></div>
+          <div class="hint">
+            Resin regenerates 1 per 8 minutes — 180 a day. Trounce Domains cost
+            30 resin for your first 3 clears each week, 60 after.
+          </div>
+          <div
+            id="error"
+            class="error"
+            role="alert"
+            aria-live="assertive"
+            hidden
+          ></div>
         </div>
-        <div class="hint" id="tz-hint"></div>
-        <div class="hint">
-          Resin regenerates 1 per 8 minutes — 180 a day. Trounce Domains cost 30
-          resin for your first 3 clears each week, 60 after.
-        </div>
-        <div
-          id="error"
-          class="error"
-          role="alert"
-          aria-live="assertive"
-          hidden
-        ></div>
-      </div>
 
-      <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">Resin</h2>
-        <p class="blurb">
-          The bar runs from now to the moment everything is full — 200 in the
-          bar and every Condensed slot used — which is when regen starts going
-          in the bin. One column per day, filled as far as you'll have banked by
-          the end of it — so the bar fills as the days pass and tops out exactly
-          when storage does. The colour says which assumption bought that day:
-          hoarding alone, then the extra days your spending buys back. A dashed
-          <em>craft</em> tick marks where each Condensed becomes craftable.
-          Below it, every copy of Transient Resin you can still grab: solid
-          while it's claimable, hollow for the days it's yours before it
-          expires.
-        </p>
-        <div class="tl-controls">
-          <button
-            type="button"
-            class="tl-nav"
-            data-step="-1"
-            aria-label="Move the window back a week"
-          >
-            ◀
-          </button>
-          <div class="tl-zoom" role="group" aria-label="Timeline range">
+        <div class="card" aria-live="polite" aria-atomic="true">
+          <h2 class="section-title">Resin</h2>
+          <p class="blurb">
+            The bar runs from now to the moment everything is full — 200 in the
+            bar and every Condensed slot used — which is when regen starts going
+            in the bin. One column per day, filled as far as you'll have banked
+            by the end of it — so the bar fills as the days pass and tops out
+            exactly when storage does. The colour says which assumption bought
+            that day: hoarding alone, then the extra days your spending buys
+            back. A dashed
+            <em>craft</em> tick marks where each Condensed becomes craftable.
+            Below it, every copy of Transient Resin you can still grab: solid
+            while it's claimable, hollow for the days it's yours before it
+            expires.
+          </p>
+          <div class="tl-controls">
             <button
               type="button"
-              class="tl-opt"
-              data-days="0"
-              aria-pressed="true"
+              class="tl-nav"
+              data-step="-1"
+              aria-label="Move the window back a week"
             >
-              Fit
+              ◀
             </button>
+            <div class="tl-zoom" role="group" aria-label="Timeline range">
+              <button
+                type="button"
+                class="tl-opt"
+                data-days="0"
+                aria-pressed="true"
+              >
+                Fit
+              </button>
+              <button
+                type="button"
+                class="tl-opt"
+                data-days="30"
+                aria-pressed="false"
+              >
+                1 month
+              </button>
+              <button
+                type="button"
+                class="tl-opt"
+                data-days="7"
+                aria-pressed="false"
+              >
+                1 week
+              </button>
+            </div>
             <button
               type="button"
-              class="tl-opt"
-              data-days="30"
-              aria-pressed="false"
+              class="tl-nav"
+              data-step="1"
+              aria-label="Move the window forward a week"
             >
-              1 month
-            </button>
-            <button
-              type="button"
-              class="tl-opt"
-              data-days="7"
-              aria-pressed="false"
-            >
-              1 week
+              ▶
             </button>
           </div>
-          <button
-            type="button"
-            class="tl-nav"
-            data-step="1"
-            aria-label="Move the window forward a week"
-          >
-            ▶
-          </button>
+          <div class="tl" id="resin-tl"></div>
+          <div class="readout" id="resin-readout"></div>
+          <div class="verdict" id="resin-verdict"></div>
+          <div class="tl-legend" id="resin-legend"></div>
         </div>
-        <div class="tl" id="resin-tl"></div>
-        <div class="readout" id="resin-readout"></div>
-        <div class="verdict" id="resin-verdict"></div>
-        <div class="tl-legend" id="resin-legend"></div>
-      </div>
+      </section>
 
-      <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">Companionship EXP</h2>
-        <p class="blurb">
-          The one that raises Friendship Level. Characters living in your
-          Serenitea Pot generate it and it stops dead at 500 — so bank it before
-          a new character lands and pour it straight into them.
-        </p>
-        <div class="fields">
-          <div class="field">
-            <label for="current-companion">Current (0–500)</label>
-            <input
-              type="number"
-              id="current-companion"
-              min="0"
-              max="500"
-              value="0"
-              step="5"
-              inputmode="numeric"
-            />
+      <section
+        class="tab-panel"
+        id="panel-companion"
+        role="tabpanel"
+        aria-labelledby="tab-companion"
+        hidden
+      >
+        <div class="card" aria-live="polite" aria-atomic="true">
+          <h2 class="section-title">Companionship EXP</h2>
+          <p class="blurb">
+            The one that raises Friendship Level. Characters living in your
+            Serenitea Pot generate it and it stops dead at 500 — so bank it
+            before a new character lands and pour it straight into them.
+          </p>
+          <div class="fields">
+            <div class="field">
+              <label for="current-companion">Current (0–500)</label>
+              <input
+                type="number"
+                id="current-companion"
+                min="0"
+                max="500"
+                value="0"
+                step="5"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="companion-rate">Rate (per hour)</label>
+              <input
+                type="number"
+                id="companion-rate"
+                min="0"
+                max="5"
+                value="5"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
           </div>
-          <div class="field">
-            <label for="companion-rate">Rate (per hour)</label>
-            <input
-              type="number"
-              id="companion-rate"
-              min="0"
-              max="5"
-              value="5"
-              step="1"
-              inputmode="numeric"
-            />
+          <div class="hint">
+            5/hr is the ceiling, at 12,000 Adeptal Energy. Storage caps at 500
+            at Trust Rank 10.
           </div>
-        </div>
-        <div class="hint">
-          5/hr is the ceiling, at 12,000 Adeptal Energy. Storage caps at 500 at
-          Trust Rank 10.
-        </div>
-        <div
-          id="companion-error"
-          class="error"
-          role="alert"
-          aria-live="assertive"
-          hidden
-        ></div>
-        <!-- The same window as the resin chart, driven from either card: both
+          <div
+            id="companion-error"
+            class="error"
+            role="alert"
+            aria-live="assertive"
+            hidden
+          ></div>
+          <!-- The same window as the resin chart, driven from either card: both
              charts share an axis, so zooming one without the other would put
              two different date ranges on the same page. -->
-        <div class="tl-controls">
-          <button
-            type="button"
-            class="tl-nav"
-            data-step="-1"
-            aria-label="Move the window back a week"
-          >
-            ◀
-          </button>
-          <div class="tl-zoom" role="group" aria-label="Timeline range">
+          <div class="tl-controls">
             <button
               type="button"
-              class="tl-opt"
-              data-days="0"
-              aria-pressed="true"
+              class="tl-nav"
+              data-step="-1"
+              aria-label="Move the window back a week"
             >
-              Fit
+              ◀
             </button>
+            <div class="tl-zoom" role="group" aria-label="Timeline range">
+              <button
+                type="button"
+                class="tl-opt"
+                data-days="0"
+                aria-pressed="true"
+              >
+                Fit
+              </button>
+              <button
+                type="button"
+                class="tl-opt"
+                data-days="30"
+                aria-pressed="false"
+              >
+                1 month
+              </button>
+              <button
+                type="button"
+                class="tl-opt"
+                data-days="7"
+                aria-pressed="false"
+              >
+                1 week
+              </button>
+            </div>
             <button
               type="button"
-              class="tl-opt"
-              data-days="30"
-              aria-pressed="false"
+              class="tl-nav"
+              data-step="1"
+              aria-label="Move the window forward a week"
             >
-              1 month
-            </button>
-            <button
-              type="button"
-              class="tl-opt"
-              data-days="7"
-              aria-pressed="false"
-            >
-              1 week
+              ▶
             </button>
           </div>
-          <button
-            type="button"
-            class="tl-nav"
-            data-step="1"
-            aria-label="Move the window forward a week"
-          >
-            ▶
-          </button>
+          <div class="tl" id="companion-tl"></div>
+          <div class="readout" id="companion-readout"></div>
+          <div class="verdict" id="companion-verdict"></div>
         </div>
-        <div class="tl" id="companion-tl"></div>
-        <div class="readout" id="companion-readout"></div>
-        <div class="verdict" id="companion-verdict"></div>
-      </div>
+      </section>
 
-      <div class="card">
-        <h2 class="section-title">Gem stockpile</h2>
-        <p class="blurb">
-          Pre-farming for whoever lands next, before you know who that is. Count
-          what you hold of the element you're betting on, then everything else —
-          off-element gems convert at the bench for Dust of Azoth, so they count
-          towards the same ascension.
-        </p>
-        <h3 class="section-title">Element you're farming</h3>
-        <div class="fields tight">
-          <div class="field">
-            <label for="gem-target-slivers">Slivers</label>
-            <input
-              type="number"
-              id="gem-target-slivers"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
+      <section
+        class="tab-panel"
+        id="panel-gems"
+        role="tabpanel"
+        aria-labelledby="tab-gems"
+        hidden
+      >
+        <div class="card">
+          <h2 class="section-title">Gem stockpile</h2>
+          <p class="blurb">
+            Pre-farming for whoever lands next, before you know who that is.
+            Count what you hold of the element you're betting on, then
+            everything else — off-element gems convert at the bench for Dust of
+            Azoth, so they count towards the same ascension.
+          </p>
+          <h3 class="section-title">Element you're farming</h3>
+          <div class="fields tight">
+            <div class="field">
+              <label for="gem-target-slivers">Slivers</label>
+              <input
+                type="number"
+                id="gem-target-slivers"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="gem-target-fragments">Fragments</label>
+              <input
+                type="number"
+                id="gem-target-fragments"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="gem-target-chunks">Chunks</label>
+              <input
+                type="number"
+                id="gem-target-chunks"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="gem-target-gemstones">Gemstones</label>
+              <input
+                type="number"
+                id="gem-target-gemstones"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
           </div>
-          <div class="field">
-            <label for="gem-target-fragments">Fragments</label>
-            <input
-              type="number"
-              id="gem-target-fragments"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
+          <h3 class="section-title group-title">Every other element</h3>
+          <div class="fields tight">
+            <div class="field">
+              <label for="gem-off-slivers">Slivers</label>
+              <input
+                type="number"
+                id="gem-off-slivers"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="gem-off-fragments">Fragments</label>
+              <input
+                type="number"
+                id="gem-off-fragments"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="gem-off-chunks">Chunks</label>
+              <input
+                type="number"
+                id="gem-off-chunks"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field">
+              <label for="gem-off-gemstones">Gemstones</label>
+              <input
+                type="number"
+                id="gem-off-gemstones"
+                min="0"
+                max="999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
           </div>
-          <div class="field">
-            <label for="gem-target-chunks">Chunks</label>
-            <input
-              type="number"
-              id="gem-target-chunks"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
+          <h3 class="section-title group-title">Dust, and what comes free</h3>
+          <div class="fields">
+            <div class="field">
+              <label for="gem-dust">Dust of Azoth held</label>
+              <input
+                type="number"
+                id="gem-dust"
+                min="0"
+                max="9999"
+                value="0"
+                step="1"
+                inputmode="numeric"
+              />
+            </div>
+            <div class="field field-check">
+              <label class="label-check" for="gem-trial">
+                <input type="checkbox" id="gem-trial" />
+                Trial run (−1 Fragment)
+              </label>
+            </div>
+            <div class="field field-check">
+              <label class="label-check" for="gem-quest">
+                <input type="checkbox" id="gem-quest" />
+                Story quest (−3 Fragments)
+              </label>
+            </div>
           </div>
-          <div class="field">
-            <label for="gem-target-gemstones">Gemstones</label>
-            <input
-              type="number"
-              id="gem-target-gemstones"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
+          <div class="hint">
+            Lvl 1 → 90 wants 1 Sliver, 9 Fragments, 9 Chunks and 6 Gemstones —
+            271 Slivers of value. Tiers fuse 3-to-1 at the bench, and converting
+            an off-element gem costs 1 Dust of Azoth per Sliver of value it's
+            worth.
           </div>
+          <div
+            id="gem-error"
+            class="error"
+            role="alert"
+            aria-live="assertive"
+            hidden
+          ></div>
         </div>
-        <h3 class="section-title group-title">Every other element</h3>
-        <div class="fields tight">
-          <div class="field">
-            <label for="gem-off-slivers">Slivers</label>
-            <input
-              type="number"
-              id="gem-off-slivers"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field">
-            <label for="gem-off-fragments">Fragments</label>
-            <input
-              type="number"
-              id="gem-off-fragments"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field">
-            <label for="gem-off-chunks">Chunks</label>
-            <input
-              type="number"
-              id="gem-off-chunks"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field">
-            <label for="gem-off-gemstones">Gemstones</label>
-            <input
-              type="number"
-              id="gem-off-gemstones"
-              min="0"
-              max="999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-        </div>
-        <h3 class="section-title group-title">Dust, and what comes free</h3>
-        <div class="fields">
-          <div class="field">
-            <label for="gem-dust">Dust of Azoth held</label>
-            <input
-              type="number"
-              id="gem-dust"
-              min="0"
-              max="9999"
-              value="0"
-              step="1"
-              inputmode="numeric"
-            />
-          </div>
-          <div class="field field-check">
-            <label class="label-check" for="gem-trial">
-              <input type="checkbox" id="gem-trial" />
-              Trial run (−1 Fragment)
-            </label>
-          </div>
-          <div class="field field-check">
-            <label class="label-check" for="gem-quest">
-              <input type="checkbox" id="gem-quest" />
-              Story quest (−3 Fragments)
-            </label>
-          </div>
-        </div>
-        <div class="hint">
-          Lvl 1 → 90 wants 1 Sliver, 9 Fragments, 9 Chunks and 6 Gemstones —
-          271 Slivers of value. Tiers fuse 3-to-1 at the bench, and converting
-          an off-element gem costs 1 Dust of Azoth per Sliver of value it's
-          worth.
-        </div>
-        <div
-          id="gem-error"
-          class="error"
-          role="alert"
-          aria-live="assertive"
-          hidden
-        ></div>
-      </div>
 
-      <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">Gemstone deficit</h2>
-        <p class="blurb">
-          What's still missing for one full ascension, and the bench steps that
-          close it. Off-element gems only help if you hold them — anything past
-          that comes off the weekly boss.
-        </p>
-        <div id="gem-badge"></div>
-        <div class="readout stack" id="gem-readout"></div>
-        <div class="steps" id="gem-steps"></div>
-        <div class="verdict" id="gem-verdict"></div>
-      </div>
+        <div class="card" aria-live="polite" aria-atomic="true">
+          <h2 class="section-title">Gemstone deficit</h2>
+          <p class="blurb">
+            What's still missing for one full ascension, and the bench steps
+            that close it. Off-element gems only help if you hold them —
+            anything past that comes off the weekly boss.
+          </p>
+          <div id="gem-badge"></div>
+          <div class="readout stack" id="gem-readout"></div>
+          <div class="steps" id="gem-steps"></div>
+          <div class="verdict" id="gem-verdict"></div>
+        </div>
 
-      <div class="card" aria-live="polite" aria-atomic="true">
-        <h2 class="section-title">Dust of Azoth &amp; Stardust</h2>
-        <p class="blurb">
-          Converting the gap costs Dust, and Dust you don't have costs Masterless
-          Stardust at Paimon's Bargains — 10 Dust a pack, 5 Stardust a go.
-        </p>
-        <div class="readout stack" id="gem-cost-readout"></div>
-      </div>
+        <div class="card" aria-live="polite" aria-atomic="true">
+          <h2 class="section-title">Dust of Azoth &amp; Stardust</h2>
+          <p class="blurb">
+            Converting the gap costs Dust, and Dust you don't have costs
+            Masterless Stardust at Paimon's Bargains — 10 Dust a pack, 5
+            Stardust a go.
+          </p>
+          <div class="readout stack" id="gem-cost-readout"></div>
+        </div>
+      </section>
 
       <footer>
         Any questions or ideas? Raise an issue
@@ -2492,7 +2591,7 @@
       const PERSISTED_NUMBERS = { ...PERSISTED, ...PERSISTED_GEMS };
 
       function saveInputs() {
-        const state = {};
+        const state = { tab: activeTab };
         for (const [key, input] of Object.entries(PERSISTED_NUMBERS)) {
           state[key] = input.value;
         }
@@ -2516,6 +2615,31 @@
         for (const [key, input] of Object.entries(PERSISTED_CHECKS)) {
           if (typeof saved[key] === "boolean") input.checked = saved[key];
         }
+        // Only remembered, not applied — showTab does that once the handles and
+        // the panels are both ready to be told about it.
+        if (typeof saved.tab === "string") activeTab = saved.tab;
+      }
+
+      // ---- tabs ------------------------------------------------------------
+
+      // One calculator at a time. Both charts size their own track in pixels,
+      // which measures as nothing inside a hidden panel — so a timeline is
+      // redrawn as its panel opens rather than while it's away.
+      const tabs = Array.from(document.querySelectorAll(".tab"));
+      const TIMELINE_TABS = ["tab-resin", "tab-companion"];
+      let activeTab = tabs[0].id;
+
+      function showTab(id, focus) {
+        activeTab = tabs.some((tab) => tab.id === id) ? id : tabs[0].id;
+        for (const tab of tabs) {
+          const on = tab.id === activeTab;
+          tab.setAttribute("aria-selected", String(on));
+          tab.tabIndex = on ? 0 : -1;
+          document.getElementById(tab.getAttribute("aria-controls")).hidden =
+            !on;
+          if (on && focus) tab.focus();
+        }
+        if (TIMELINE_TABS.includes(activeTab)) calculate();
       }
 
       // ---- view window -----------------------------------------------------
@@ -2895,6 +3019,29 @@
         ? savedServer
         : detectClosestServer();
       restoreInputs();
+      showTab(activeTab);
+
+      // Arrow keys move along the strip, the way a tablist is expected to.
+      for (const [i, tab] of tabs.entries()) {
+        tab.addEventListener("click", () => {
+          showTab(tab.id);
+          saveInputs();
+        });
+        tab.addEventListener("keydown", (event) => {
+          const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+          const jump = { Home: 0, End: tabs.length - 1 }[event.key];
+          const next =
+            step !== undefined
+              ? tabs[(i + step + tabs.length) % tabs.length]
+              : jump !== undefined
+                ? tabs[jump]
+                : null;
+          if (!next) return;
+          event.preventDefault();
+          showTab(next.id, true);
+          saveInputs();
+        });
+      }
 
       selectServer.addEventListener("change", () => {
         setCookie(COOKIE_SERVER, selectServer.value);
@@ -2947,7 +3094,12 @@
       });
 
       // Keep the page live: "now" moves, and so does everything measured from it.
-      setInterval(calculate, 60000);
+      // Nothing on the gems tab moves with the clock, and a chart drawn while
+      // its panel is hidden would measure itself at nothing, so the tick only
+      // fires for a timeline you can see.
+      setInterval(() => {
+        if (TIMELINE_TABS.includes(activeTab)) calculate();
+      }, 60000);
 
       calculate();
       calculateGems();
