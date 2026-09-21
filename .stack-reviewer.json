@@ -1,0 +1,3 @@
+{
+  "reviewableExts": ".yml,.yaml,.toml,.tf,.tfvars,.hcl,.nix,.sh,.bash,.zsh,.fish,.ps1,.env,.ini,.cfg,.conf,.properties,.service,.timer,.socket,.mount,.target,Dockerfile,Containerfile,Makefile,Justfile,Caddyfile,Procfile,Vagrantfile,Jenkinsfile,.mjs,.cjs,.js,.jsx,.ts,.tsx,.py,.rb,.go,.rs,.java,.kt,.kts,.swift,.c,.h,.cc,.cpp,.hpp,.cs,.php,.pl,.lua,.scala,.ex,.exs,.sql,.json,.jsonc,.proto,.graphql,.tpl,.j2,.gotmpl,.rules,.html"
+}
