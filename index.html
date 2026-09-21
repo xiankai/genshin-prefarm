@@ -3,11 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Genshin Resin Minmaxer</title>
+    <!-- The <title> carries what people actually search for; the h1 stays the
+         short name. -->
+    <title>Genshin Prefarm — Resin & Ascension Gem Calculator</title>
+    <!-- Both of these are cut off in a search result past roughly 60 and 155
+         characters, so they say the whole thing inside that. -->
     <meta
       name="description"
-      content="A timeline of your resin and Companionship EXP against the banners and Stygian Onslaughts you're hoarding for."
+      content="Free Genshin Impact prefarm calculator: when your resin caps out, when Companionship EXP stops banking, and the ascension gems you're still short."
     />
+    <meta
+      name="keywords"
+      content="genshin impact calculator, resin calculator, prefarm calculator, companionship exp calculator, ascension gem calculator, dust of azoth, masterless stardust, condensed resin, transient resin, banner planner"
+    />
+    <link rel="canonical" href="https://xiankai.github.io/genshin-prefarm/" />
+    <meta name="theme-color" content="#f5efe0" />
+    <!-- A gem, inline, so the tab and the search result have a mark without the
+         page needing a second file. -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%235c3a0a' stroke-width='1.3' stroke-linejoin='round'%3E%3Cpath d='M4.6 2.4h6.8l3 4-6.4 7.4L1.6 6.4zM1.6 6.4h12.8M4.6 2.4 6.3 6.4M11.4 2.4 9.7 6.4M6.3 6.4 8 13.8M9.7 6.4 8 13.8'/%3E%3C/svg%3E"
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Genshin Prefarm" />
+    <meta
+      property="og:title"
+      content="Genshin Prefarm — Resin, Companionship EXP & Ascension Gem Calculator"
+    />
+    <!-- A share card has more room than a search result, so it gets the longer
+         line. -->
+    <meta
+      property="og:description"
+      content="What to bank before the next character lands: resin and Companionship EXP drawn against the banners you're hoarding for, and the ascension gems you're still short."
+    />
+    <meta
+      property="og:url"
+      content="https://xiankai.github.io/genshin-prefarm/"
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Genshin Prefarm",
+        "url": "https://xiankai.github.io/genshin-prefarm/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "description": "Prefarm calculator for Genshin Impact: resin and Companionship EXP timelines against upcoming banners, and the ascension gem, Dust of Azoth and Masterless Stardust cost of a Lvl 1–90 character.",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
 
     <style>
       :root {
@@ -199,7 +248,25 @@
         gap: 0.4rem;
         margin-bottom: 1rem;
       }
+      /* The symbol sheet is markup, not picture: it must take up no room. */
+      .icon-defs {
+        display: none;
+      }
+      .tab-icon {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.3;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
       .tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
         flex: 1 1 8rem;
         font-family: inherit;
         font-size: 0.85rem;
@@ -701,8 +768,26 @@
     </style>
   </head>
   <body>
+    <!-- Drawn once, stamped wherever a <use> asks for one. Everything is stroked
+         in currentColor, so an icon inverts with whatever it sits on. -->
+    <svg class="icon-defs" aria-hidden="true" focusable="false">
+      <symbol id="icon-resin" viewBox="0 0 16 16">
+        <path d="M8 1.6c0 0-4.6 5-4.6 8a4.6 4.6 0 0 0 9.2 0c0-3-4.6-8-4.6-8Z" />
+      </symbol>
+      <symbol id="icon-companion" viewBox="0 0 16 16">
+        <path
+          d="M8 13.8C8 13.8 1.8 10 1.8 6.1A3.3 3.3 0 0 1 8 4.4a3.3 3.3 0 0 1 6.2 1.7c0 3.9-6.2 7.7-6.2 7.7Z"
+        />
+      </symbol>
+      <symbol id="icon-gem" viewBox="0 0 16 16">
+        <path
+          d="M4.6 2.4h6.8l3 4-6.4 7.4L1.6 6.4zM1.6 6.4h12.8M4.6 2.4 6.3 6.4M11.4 2.4 9.7 6.4M6.3 6.4 8 13.8M9.7 6.4 8 13.8"
+        />
+      </symbol>
+    </svg>
+
     <div class="container">
-      <h1>Genshin Resin Minmaxer</h1>
+      <h1>Genshin Prefarm</h1>
       <p class="intro">
         Three calculators for the one question: what's worth banking before the
         next banner, and what's going in the bin while you wait for it.
@@ -717,6 +802,9 @@
           aria-controls="panel-resin"
           aria-selected="true"
         >
+          <svg class="tab-icon" aria-hidden="true" focusable="false">
+            <use href="#icon-resin" />
+          </svg>
           Resin
         </button>
         <button
@@ -728,6 +816,9 @@
           aria-selected="false"
           tabindex="-1"
         >
+          <svg class="tab-icon" aria-hidden="true" focusable="false">
+            <use href="#icon-companion" />
+          </svg>
           Companionship EXP
         </button>
         <button
@@ -739,6 +830,9 @@
           aria-selected="false"
           tabindex="-1"
         >
+          <svg class="tab-icon" aria-hidden="true" focusable="false">
+            <use href="#icon-gem" />
+          </svg>
           Ascension gems
         </button>
       </div>
@@ -1009,7 +1103,7 @@
         <div class="card">
           <h2 class="section-title">Gem stockpile</h2>
           <p class="blurb">
-            Pre-farming for whoever lands next, before you know who that is.
+            Prefarming for whoever lands next, before you know who that is.
             Count what you hold of the element you're betting on, then
             everything else — off-element gems convert at the bench for Dust of
             Azoth, so they count towards the same ascension.
@@ -1185,7 +1279,7 @@
       <footer>
         Any questions or ideas? Raise an issue
         <a
-          href="https://github.com/xiankai/genshin-resin-minmaxer/issues"
+          href="https://github.com/xiankai/genshin-prefarm/issues"
           target="_blank"
           rel="noopener"
           >here</a
