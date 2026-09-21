@@ -141,6 +141,11 @@
       .field {
         min-width: 0;
       }
+      /* Eight gem counts, each one or two digits: they pack tighter than the
+         rest so a phone gets two to a row instead of eight rows. */
+      .fields.tight {
+        grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+      }
       /* The trounce field is optional, so its checkbox rides in the label and
          the row stays the same shape as every other input beside it. */
       .label-check {
@@ -565,6 +570,14 @@
       .readout-val.bad {
         color: var(--danger);
       }
+      /* Gem rows carry a list of gems rather than a date, so on a narrow card
+         the value drops to its own line instead of overrunning the key. */
+      .readout.stack .readout-row {
+        flex-wrap: wrap;
+      }
+      .readout.stack .readout-val {
+        flex-shrink: 1;
+      }
       .verdict {
         margin-top: 0.6rem;
         padding: 0.5rem 0.65rem;
@@ -577,6 +590,62 @@
       }
       .verdict:empty {
         display: none;
+      }
+
+      /* The gem cards have no timeline to lean on, so they carry their own
+         furniture: a badge for the one yes/no that matters, and a chain for the
+         bench steps you'd actually click through. */
+      .badge {
+        display: inline-block;
+        margin-bottom: 0.8rem;
+        padding: 0.25rem 0.65rem;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .badge.ready {
+        color: var(--keep-text);
+      }
+      .badge.farming {
+        color: var(--danger);
+      }
+      .steps {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 0.45rem;
+        margin-top: 0.9rem;
+      }
+      .steps:empty {
+        display: none;
+      }
+      .step {
+        padding: 0.3rem 0.55rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.78rem;
+        color: var(--accent-bright);
+      }
+      .step-arrow {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      /* A second or third group of inputs inside one card. */
+      .group-title {
+        margin-top: 1rem;
+      }
+      /* A checkbox-only field has nothing under its label, so it drops down the
+         row to sit level with the input boxes beside it. */
+      .field-check {
+        display: flex;
+        align-items: flex-end;
+      }
+      .field-check label {
+        margin-bottom: 0.6rem;
       }
 
       @media (max-width: 560px) {
@@ -840,6 +909,180 @@
         <div class="verdict" id="companion-verdict"></div>
       </div>
 
+      <div class="card">
+        <h2 class="section-title">Gem stockpile</h2>
+        <p class="blurb">
+          Pre-farming for whoever lands next, before you know who that is. Count
+          what you hold of the element you're betting on, then everything else —
+          off-element gems convert at the bench for Dust of Azoth, so they count
+          towards the same ascension.
+        </p>
+        <h3 class="section-title">Element you're farming</h3>
+        <div class="fields tight">
+          <div class="field">
+            <label for="gem-target-slivers">Slivers</label>
+            <input
+              type="number"
+              id="gem-target-slivers"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="gem-target-fragments">Fragments</label>
+            <input
+              type="number"
+              id="gem-target-fragments"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="gem-target-chunks">Chunks</label>
+            <input
+              type="number"
+              id="gem-target-chunks"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="gem-target-gemstones">Gemstones</label>
+            <input
+              type="number"
+              id="gem-target-gemstones"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+        </div>
+        <h3 class="section-title group-title">Every other element</h3>
+        <div class="fields tight">
+          <div class="field">
+            <label for="gem-off-slivers">Slivers</label>
+            <input
+              type="number"
+              id="gem-off-slivers"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="gem-off-fragments">Fragments</label>
+            <input
+              type="number"
+              id="gem-off-fragments"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="gem-off-chunks">Chunks</label>
+            <input
+              type="number"
+              id="gem-off-chunks"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field">
+            <label for="gem-off-gemstones">Gemstones</label>
+            <input
+              type="number"
+              id="gem-off-gemstones"
+              min="0"
+              max="999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+        </div>
+        <h3 class="section-title group-title">Dust, and what comes free</h3>
+        <div class="fields">
+          <div class="field">
+            <label for="gem-dust">Dust of Azoth held</label>
+            <input
+              type="number"
+              id="gem-dust"
+              min="0"
+              max="9999"
+              value="0"
+              step="1"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="field field-check">
+            <label class="label-check" for="gem-trial">
+              <input type="checkbox" id="gem-trial" />
+              Trial run (−1 Fragment)
+            </label>
+          </div>
+          <div class="field field-check">
+            <label class="label-check" for="gem-quest">
+              <input type="checkbox" id="gem-quest" />
+              Story quest (−3 Fragments)
+            </label>
+          </div>
+        </div>
+        <div class="hint">
+          Lvl 1 → 90 wants 1 Sliver, 9 Fragments, 9 Chunks and 6 Gemstones —
+          271 Slivers of value. Tiers fuse 3-to-1 at the bench, and converting
+          an off-element gem costs 1 Dust of Azoth per Sliver of value it's
+          worth.
+        </div>
+        <div
+          id="gem-error"
+          class="error"
+          role="alert"
+          aria-live="assertive"
+          hidden
+        ></div>
+      </div>
+
+      <div class="card" aria-live="polite" aria-atomic="true">
+        <h2 class="section-title">Gemstone deficit</h2>
+        <p class="blurb">
+          What's still missing for one full ascension, and the bench steps that
+          close it. Off-element gems only help if you hold them — anything past
+          that comes off the weekly boss.
+        </p>
+        <div id="gem-badge"></div>
+        <div class="readout stack" id="gem-readout"></div>
+        <div class="steps" id="gem-steps"></div>
+        <div class="verdict" id="gem-verdict"></div>
+      </div>
+
+      <div class="card" aria-live="polite" aria-atomic="true">
+        <h2 class="section-title">Dust of Azoth &amp; Stardust</h2>
+        <p class="blurb">
+          Converting the gap costs Dust, and Dust you don't have costs Masterless
+          Stardust at Paimon's Bargains — 10 Dust a pack, 5 Stardust a go.
+        </p>
+        <div class="readout stack" id="gem-cost-readout"></div>
+      </div>
+
       <footer>
         Any questions or ideas? Raise an issue
         <a
@@ -869,6 +1112,32 @@
       // Level: 5/hr at 12,000 Adeptal Energy, capped at 500 at Trust Rank 10.
       const COMPANION_CAP = 500;
       const COMPANION_RATE_DEFAULT = 5;
+
+      // Elemental gems, cheapest tier first. Three of one fuse into one of the
+      // next, so every gem is worth some number of Slivers — and that number is
+      // also what converting it off-element costs in Dust of Azoth.
+      const GEM_TIERS = [
+        { key: "slivers", value: 1, one: "Sliver", many: "Slivers" },
+        { key: "fragments", value: 3, one: "Fragment", many: "Fragments" },
+        { key: "chunks", value: 9, one: "Chunk", many: "Chunks" },
+        { key: "gemstones", value: 27, one: "Gemstone", many: "Gemstones" },
+      ];
+      // Spelling a value back out as gems, and the bench ladder itself, both run
+      // from the top tier down.
+      const GEM_TIERS_DESC = [...GEM_TIERS].reverse();
+      const ASCENSION_COST = {
+        slivers: 1,
+        fragments: 9,
+        chunks: 9,
+        gemstones: 6,
+      };
+      const ASCENSION_SLIVERS = 271; // 1 + 9×3 + 9×9 + 6×27
+      // What a new character hands you for free before you farm anything.
+      const TRIAL_BONUS_SLIVERS = 3; // 1 Fragment, from the trial run
+      const QUEST_BONUS_SLIVERS = 9; // 3 Fragments, from their story quest
+      const DUST_PER_PACK = 10;
+      const STARDUST_PER_PACK = 5;
+      const BOSS_SLIVERS_PER_RUN = 8.5; // one 40-resin boss, averaged
 
       const SERVERS = {
         asia: { label: "Asia", offset: 8 },
@@ -1034,6 +1303,29 @@
       const viewNavs = Array.from(
         document.querySelectorAll(".tl-nav[data-step]"),
       );
+      // Nine gem inputs, held in the shape the calculator wants them rather than
+      // as nine more named handles.
+      function gemPoolInputs(which) {
+        const out = {};
+        for (const tier of GEM_TIERS) {
+          out[tier.key] = document.getElementById(`gem-${which}-${tier.key}`);
+        }
+        return out;
+      }
+      const gemPools = {
+        target: gemPoolInputs("target"),
+        off: gemPoolInputs("off"),
+      };
+      const inputGemDust = document.getElementById("gem-dust");
+      const inputGemTrial = document.getElementById("gem-trial");
+      const inputGemQuest = document.getElementById("gem-quest");
+      const gemError = document.getElementById("gem-error");
+      const gemBadge = document.getElementById("gem-badge");
+      const gemReadout = document.getElementById("gem-readout");
+      const gemSteps = document.getElementById("gem-steps");
+      const gemVerdict = document.getElementById("gem-verdict");
+      const gemCostReadout = document.getElementById("gem-cost-readout");
+
       const companionTl = document.getElementById("companion-tl");
       const companionReadout = document.getElementById("companion-readout");
       const companionVerdict = document.getElementById("companion-verdict");
@@ -2181,10 +2473,31 @@
         companionRate: inputCompanionRate,
       };
 
+      // The gem inputs are keyed by id: there are nine of them, and the ids
+      // already say which pool and which tier.
+      const PERSISTED_GEMS = Object.fromEntries(
+        [
+          inputGemDust,
+          ...Object.values(gemPools.target),
+          ...Object.values(gemPools.off),
+        ].map((input) => [input.id, input]),
+      );
+
+      const PERSISTED_CHECKS = {
+        trounce: inputTrounceOn,
+        gemTrial: inputGemTrial,
+        gemQuest: inputGemQuest,
+      };
+
+      const PERSISTED_NUMBERS = { ...PERSISTED, ...PERSISTED_GEMS };
+
       function saveInputs() {
-        const state = { trounce: inputTrounceOn.checked };
-        for (const [key, input] of Object.entries(PERSISTED)) {
+        const state = {};
+        for (const [key, input] of Object.entries(PERSISTED_NUMBERS)) {
           state[key] = input.value;
+        }
+        for (const [key, input] of Object.entries(PERSISTED_CHECKS)) {
+          state[key] = input.checked;
         }
         setCookie(COOKIE_INPUTS, JSON.stringify(state));
       }
@@ -2197,11 +2510,11 @@
           return;
         }
         if (!saved || typeof saved !== "object") return;
-        for (const [key, input] of Object.entries(PERSISTED)) {
+        for (const [key, input] of Object.entries(PERSISTED_NUMBERS)) {
           if (typeof saved[key] === "string") input.value = saved[key];
         }
-        if (typeof saved.trounce === "boolean") {
-          inputTrounceOn.checked = saved.trounce;
+        for (const [key, input] of Object.entries(PERSISTED_CHECKS)) {
+          if (typeof saved[key] === "boolean") input.checked = saved[key];
         }
       }
 
@@ -2239,6 +2552,217 @@
             !viewDays ||
             (back ? panDays <= range.minPan : panDays >= range.maxPan);
         }
+      }
+
+      // ---- gems ------------------------------------------------------------
+
+      function poolValue(pool) {
+        return GEM_TIERS.reduce(
+          (sum, tier) => sum + (pool[tier.key] || 0) * tier.value,
+          0,
+        );
+      }
+
+      // A value in Slivers, spelled back out as the largest gems it makes. 271
+      // reads as "10 Gemstones and a Sliver" far better than as a number.
+      function asGems(slivers) {
+        let left = slivers;
+        const out = {};
+        for (const tier of GEM_TIERS_DESC) {
+          out[tier.key] = Math.floor(left / tier.value);
+          left -= out[tier.key] * tier.value;
+        }
+        return out;
+      }
+
+      function gemList(counts) {
+        return GEM_TIERS_DESC.filter((tier) => counts[tier.key])
+          .map((tier) => {
+            const n = counts[tier.key];
+            return `${fmtNum(n)} ${n === 1 ? tier.one : tier.many}`;
+          })
+          .join(" · ");
+      }
+
+      // The bench only fuses upward, so the ladder is read from the bottom: each
+      // step has to produce the gems you want at that tier *plus* the ones the
+      // step above eats. Tiers nothing passes through are left out.
+      function benchSteps(slivers) {
+        const want = asGems(slivers);
+        const steps = [];
+        let feeds = 0;
+        for (const tier of GEM_TIERS_DESC) {
+          const total = want[tier.key] + feeds;
+          if (total) steps.unshift({ tier, total });
+          feeds = total * 3;
+        }
+        return steps;
+      }
+
+      function gemPlan(target, off, dust, bonuses) {
+        const bonus =
+          (bonuses.trial ? TRIAL_BONUS_SLIVERS : 0) +
+          (bonuses.quest ? QUEST_BONUS_SLIVERS : 0);
+        const required = Math.max(0, ASCENSION_SLIVERS - bonus);
+        const owned = poolValue(target);
+        const offElement = poolValue(off);
+        const deficit = Math.max(0, required - owned);
+
+        // Conversion costs 1 Dust per Sliver of value whichever tier you convert
+        // at — 3 Slivers cost the same 3 Dust as the 1 Fragment they fuse into —
+        // so the gap in Slivers *is* the Dust bill.
+        const dustShort = Math.max(0, deficit - dust);
+        const packs = Math.ceil(dustShort / DUST_PER_PACK);
+        const farmDeficit = Math.max(0, deficit - offElement);
+
+        return {
+          bonus,
+          required,
+          owned,
+          offElement,
+          deficit,
+          dust,
+          dustRequired: deficit,
+          dustShort,
+          packs,
+          stardust: packs * STARDUST_PER_PACK,
+          farmDeficit,
+          bossRuns: Math.ceil(farmDeficit / BOSS_SLIVERS_PER_RUN),
+          complete: farmDeficit === 0,
+        };
+      }
+
+      function renderGems(plan) {
+        gemBadge.innerHTML = "";
+        gemReadout.innerHTML = "";
+        gemSteps.innerHTML = "";
+        gemCostReadout.innerHTML = "";
+
+        const badge = el(
+          "span",
+          plan.complete ? "badge ready" : "badge farming",
+        );
+        badge.textContent = plan.complete
+          ? "Ready for release"
+          : "Farming required";
+        gemBadge.appendChild(badge);
+
+        readoutRow(
+          gemReadout,
+          "One ascension needs",
+          `${gemList(ASCENSION_COST)} · ${fmtNum(ASCENSION_SLIVERS)} Slivers of value`,
+        );
+        if (plan.bonus) {
+          readoutRow(
+            gemReadout,
+            "Free on release",
+            `−${fmtNum(plan.bonus)} Slivers of value`,
+            "good",
+          );
+        }
+        readoutRow(
+          gemReadout,
+          "You hold, on-element",
+          `${fmtNum(plan.owned)} Slivers of value`,
+        );
+        readoutRow(
+          gemReadout,
+          "Shortfall",
+          plan.deficit
+            ? `${fmtNum(plan.deficit)} Slivers · ${gemList(asGems(plan.deficit))}`
+            : "none — you're already there",
+          plan.deficit ? undefined : "good",
+        );
+        readoutRow(
+          gemReadout,
+          "Convertible from other elements",
+          `${fmtNum(plan.offElement)} Slivers of value`,
+        );
+        readoutRow(
+          gemReadout,
+          "Still to farm off the boss",
+          plan.farmDeficit
+            ? `${fmtNum(plan.farmDeficit)} Slivers · ~${fmtNum(plan.bossRuns)} runs`
+            : "nothing",
+          plan.farmDeficit ? "bad" : "good",
+        );
+
+        // The ladder only means anything while there's a gap to close.
+        for (const [i, step] of benchSteps(plan.deficit).entries()) {
+          if (i) {
+            const arrow = el("span", "step-arrow");
+            arrow.textContent = "→";
+            gemSteps.appendChild(arrow);
+          }
+          const node = el("span", "step");
+          const name = step.total === 1 ? step.tier.one : step.tier.many;
+          // The bottom rung is what you convert; every rung above it is a fuse.
+          node.textContent = `${i ? "Craft" : "Convert"} ${fmtNum(step.total)} ${name}`;
+          gemSteps.appendChild(node);
+        }
+
+        readoutRow(
+          gemCostReadout,
+          "Dust of Azoth to convert the gap",
+          fmtNum(plan.dustRequired),
+        );
+        readoutRow(gemCostReadout, "Dust you're holding", fmtNum(plan.dust));
+        readoutRow(
+          gemCostReadout,
+          "Dust to buy",
+          plan.dustShort ? fmtNum(plan.dustShort) : "none",
+          plan.dustShort ? "bad" : "good",
+        );
+        readoutRow(
+          gemCostReadout,
+          "Masterless Stardust that costs",
+          plan.stardust
+            ? `${fmtNum(plan.stardust)} · ${fmtNum(plan.packs)} × ${DUST_PER_PACK}-Dust pack`
+            : "nothing",
+          plan.stardust ? undefined : "good",
+        );
+
+        if (!plan.deficit) {
+          gemVerdict.textContent = `Your on-element gems already cover the whole ascension${plan.bonus ? " once the free ones land" : ""} — nothing to convert, nothing to farm.`;
+        } else if (plan.complete) {
+          gemVerdict.textContent = `Other elements cover the last ${fmtNum(plan.deficit)} Slivers of value, so you can be ready the day they drop — ${
+            plan.dustShort
+              ? `but converting it wants ${fmtNum(plan.dustShort)} more Dust of Azoth than you're holding, or ${fmtNum(plan.stardust)} Stardust at Paimon's Bargains.`
+              : `and you're holding enough Dust of Azoth to do it.`
+          }`;
+        } else {
+          gemVerdict.textContent = `Even after converting everything off-element you're ${fmtNum(plan.farmDeficit)} Slivers of value short — about ${fmtNum(plan.bossRuns)} boss runs at 40 resin each. Start farming before the banner, not after.`;
+        }
+      }
+
+      function calculateGems() {
+        gemError.hidden = true;
+
+        const pools = {};
+        for (const [which, inputs] of Object.entries(gemPools)) {
+          pools[which] = {};
+          for (const tier of GEM_TIERS) {
+            pools[which][tier.key] = readNumber(inputs[tier.key], 0);
+          }
+        }
+        const dust = readNumber(inputGemDust, 0);
+
+        const counts = [
+          ...Object.values(pools.target),
+          ...Object.values(pools.off),
+          dust,
+        ];
+        if (counts.some((n) => !Number.isFinite(n) || n < 0)) {
+          fail(gemError, "Gem and Dust counts must be 0 or more.");
+          return;
+        }
+
+        renderGems(
+          gemPlan(pools.target, pools.off, dust, {
+            trial: inputGemTrial.checked,
+            quest: inputGemQuest.checked,
+          }),
+        );
       }
 
       // ---- main ------------------------------------------------------------
@@ -2377,14 +2901,24 @@
         calculate();
       });
 
-      for (const input of [...Object.values(PERSISTED), inputTrounceOn]) {
-        if (input.type === "number") {
-          input.addEventListener("focus", () => input.select());
+      // The gem cards don't sit on the timeline, so their inputs redraw only
+      // themselves — and the clock ticking doesn't move them at all.
+      for (const [inputs, redraw] of [
+        [[...Object.values(PERSISTED), inputTrounceOn], calculate],
+        [
+          [...Object.values(PERSISTED_GEMS), inputGemTrial, inputGemQuest],
+          calculateGems,
+        ],
+      ]) {
+        for (const input of inputs) {
+          if (input.type === "number") {
+            input.addEventListener("focus", () => input.select());
+          }
+          input.addEventListener("input", () => {
+            saveInputs();
+            redraw();
+          });
         }
-        input.addEventListener("input", () => {
-          saveInputs();
-          calculate();
-        });
       }
 
       for (const btn of viewOpts) {
@@ -2416,6 +2950,7 @@
       setInterval(calculate, 60000);
 
       calculate();
+      calculateGems();
     </script>
   </body>
 </html>
