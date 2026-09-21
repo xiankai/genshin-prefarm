@@ -1047,10 +1047,9 @@
           </div>
         </div>
         <div class="hint">
-          Lvl 1 → 90 wants 1 Sliver, 9 Fragments, 9 Chunks and 6 Gemstones —
-          271 Slivers of value. Tiers fuse 3-to-1 at the bench, and converting
-          an off-element gem costs 1 Dust of Azoth per Sliver of value it's
-          worth.
+          Lvl 1 → 90 wants 1 Sliver, 9 Fragments, 9 Chunks and 6 Gemstones — 271
+          Slivers of value. Tiers fuse 3-to-1 at the bench, and converting an
+          off-element gem costs 1 Dust of Azoth per Sliver of value it's worth.
         </div>
         <div
           id="gem-error"
@@ -1077,8 +1076,9 @@
       <div class="card" aria-live="polite" aria-atomic="true">
         <h2 class="section-title">Dust of Azoth &amp; Stardust</h2>
         <p class="blurb">
-          Converting the gap costs Dust, and Dust you don't have costs Masterless
-          Stardust at Paimon's Bargains — 10 Dust a pack, 5 Stardust a go.
+          Converting the gap costs Dust, and Dust you don't have costs
+          Masterless Stardust at Paimon's Bargains — 10 Dust a pack, 5 Stardust
+          a go.
         </p>
         <div class="readout stack" id="gem-cost-readout"></div>
       </div>
@@ -2688,6 +2688,10 @@
         );
 
         // The ladder only means anything while there's a gap to close.
+        // stack-reviewer-ignore: step 0 is the bottom rung, not the top one —
+        // benchSteps walks the tiers downward but unshifts, so the last tier it
+        // visits (Slivers) ends up first. "Convert 271 Slivers → Craft 90
+        // Fragments → …" is what this actually renders.
         for (const [i, step] of benchSteps(plan.deficit).entries()) {
           if (i) {
             const arrow = el("span", "step-arrow");
@@ -2752,6 +2756,9 @@
           ...Object.values(pools.off),
           dust,
         ];
+        // stack-reviewer-ignore: readNumber only defaults an EMPTY field to 0 —
+        // it never clamps, so Number("-2") arrives as -2 and this fires. The
+        // min="0" on the input is advisory; a typed minus sign still reaches us.
         if (counts.some((n) => !Number.isFinite(n) || n < 0)) {
           fail(gemError, "Gem and Dust counts must be 0 or more.");
           return;
