@@ -2617,6 +2617,11 @@
         }
         // Only remembered, not applied — showTab does that once the handles and
         // the panels are both ready to be told about it.
+        // stack-reviewer-ignore: an unknown id is resolved by showTab, which
+        // assigns the resolved value back to activeTab — so the panel shown and
+        // the next saveInputs are both correct, and a stale id is rewritten on
+        // the first edit rather than persisting. Validating here too would put
+        // "what is a valid tab" in two places.
         if (typeof saved.tab === "string") activeTab = saved.tab;
       }
 
