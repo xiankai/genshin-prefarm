@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Genshin Resin Minmaxer</title>
+    <title>Genshin Pre-Farm</title>
     <meta
       name="description"
-      content="A timeline of your resin and Companionship EXP against the banners and Stygian Onslaughts you're hoarding for."
+      content="What to bank before the next character lands: your resin and Companionship EXP against the banners you're hoarding for, and the ascension gems you're still short."
     />
 
     <style>
@@ -199,7 +199,25 @@
         gap: 0.4rem;
         margin-bottom: 1rem;
       }
+      /* The symbol sheet is markup, not picture: it must take up no room. */
+      .icon-defs {
+        display: none;
+      }
+      .tab-icon {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.3;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
       .tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
         flex: 1 1 8rem;
         font-family: inherit;
         font-size: 0.85rem;
@@ -701,8 +719,26 @@
     </style>
   </head>
   <body>
+    <!-- Drawn once, stamped wherever a <use> asks for one. Everything is stroked
+         in currentColor, so an icon inverts with whatever it sits on. -->
+    <svg class="icon-defs" aria-hidden="true" focusable="false">
+      <symbol id="icon-resin" viewBox="0 0 16 16">
+        <path d="M8 1.6c0 0-4.6 5-4.6 8a4.6 4.6 0 0 0 9.2 0c0-3-4.6-8-4.6-8Z" />
+      </symbol>
+      <symbol id="icon-companion" viewBox="0 0 16 16">
+        <path
+          d="M8 13.8C8 13.8 1.8 10 1.8 6.1A3.3 3.3 0 0 1 8 4.4a3.3 3.3 0 0 1 6.2 1.7c0 3.9-6.2 7.7-6.2 7.7Z"
+        />
+      </symbol>
+      <symbol id="icon-gem" viewBox="0 0 16 16">
+        <path
+          d="M4.6 2.4h6.8l3 4-6.4 7.4L1.6 6.4zM1.6 6.4h12.8M4.6 2.4 6.3 6.4M11.4 2.4 9.7 6.4M6.3 6.4 8 13.8M9.7 6.4 8 13.8"
+        />
+      </symbol>
+    </svg>
+
     <div class="container">
-      <h1>Genshin Resin Minmaxer</h1>
+      <h1>Genshin Pre-Farm</h1>
       <p class="intro">
         Three calculators for the one question: what's worth banking before the
         next banner, and what's going in the bin while you wait for it.
@@ -717,6 +753,9 @@
           aria-controls="panel-resin"
           aria-selected="true"
         >
+          <svg class="tab-icon" aria-hidden="true" focusable="false">
+            <use href="#icon-resin" />
+          </svg>
           Resin
         </button>
         <button
@@ -728,6 +767,9 @@
           aria-selected="false"
           tabindex="-1"
         >
+          <svg class="tab-icon" aria-hidden="true" focusable="false">
+            <use href="#icon-companion" />
+          </svg>
           Companionship EXP
         </button>
         <button
@@ -739,6 +781,9 @@
           aria-selected="false"
           tabindex="-1"
         >
+          <svg class="tab-icon" aria-hidden="true" focusable="false">
+            <use href="#icon-gem" />
+          </svg>
           Ascension gems
         </button>
       </div>
@@ -1185,7 +1230,7 @@
       <footer>
         Any questions or ideas? Raise an issue
         <a
-          href="https://github.com/xiankai/genshin-resin-minmaxer/issues"
+          href="https://github.com/xiankai/genshin-pre-farm/issues"
           target="_blank"
           rel="noopener"
           >here</a
