@@ -1376,6 +1376,11 @@ function restoreInputs() {
   }
   // Only remembered, not applied — showTab does that once the handles and
   // the panels are both ready to be told about it.
+  // stack-reviewer-ignore: an unknown id is resolved by showTab, which
+  // assigns the resolved value back to activeTab — so the panel shown and
+  // the next saveInputs are both correct, and a stale id is rewritten on
+  // the first edit rather than persisting. Validating here too would put
+  // "what is a valid tab" in two places.
   if (typeof saved.tab === "string") activeTab = saved.tab;
 }
 
@@ -1566,8 +1571,8 @@ function renderGems(plan) {
   // The ladder only means anything while there's a gap to close.
   // stack-reviewer-ignore: step 0 is the bottom rung, not the top one —
   // benchSteps walks the tiers downward but unshifts, so the last tier it
-  // visits (Slivers) ends up first. "Convert 271 Slivers → Craft 90 Fragments
-  // → …" is what this actually renders.
+  // visits (Slivers) ends up first. "Convert 271 Slivers → Craft 90
+  // Fragments → …" is what this actually renders.
   for (const [i, step] of benchSteps(plan.deficit).entries()) {
     if (i) {
       const arrow = el("span", "step-arrow");
@@ -1632,9 +1637,9 @@ function calculateGems() {
     ...Object.values(pools.off),
     dust,
   ];
-  // stack-reviewer-ignore: readNumber only defaults an EMPTY field to 0 — it
-  // never clamps, so Number("-2") arrives as -2 and this fires. The min="0" on
-  // the input is advisory; a typed minus sign still reaches us.
+  // stack-reviewer-ignore: readNumber only defaults an EMPTY field to 0 —
+  // it never clamps, so Number("-2") arrives as -2 and this fires. The
+  // min="0" on the input is advisory; a typed minus sign still reaches us.
   if (counts.some((n) => !Number.isFinite(n) || n < 0)) {
     fail(gemError, "Gem and Dust counts must be 0 or more.");
     return;
