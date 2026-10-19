@@ -788,29 +788,18 @@ function dayChunks(from, to) {
   return out;
 }
 
-function hideWhenBroken(icon) { // stack-reviewer-ignore: a loading icon reserves its slot like any image; only a failed one is hidden
-  if (icon.complete && icon.naturalWidth === 0) {
-    icon.hidden = true;
-    return;
-  }
-  icon.addEventListener("error", () => {
-    icon.hidden = true;
-  });
-}
-
-function itemIcon(id) {
+function itemIcon(name) {
   const icon = el("img", "item-icon");
-  icon.src = `https://gi.yatta.moe/assets/UI/UI_ItemIcon_${id}.png`; // stack-reviewer-ignore: hotlinking the community asset CDN is the owner's call; vendoring is offered separately
+  icon.src = `icons/${name}.png`;
   icon.alt = "";
-  hideWhenBroken(icon);
   return icon;
 }
 
-function readoutRow(host, key, value, tone, iconId) {
+function readoutRow(host, key, value, tone, iconName) {
   const row = el("div", "readout-row");
   const k = el("span", "readout-key");
   k.textContent = key;
-  if (iconId) k.prepend(itemIcon(iconId));
+  if (iconName) k.prepend(itemIcon(iconName));
   const v = el("span", tone ? `readout-val ${tone}` : "readout-val");
   v.textContent = value;
   row.append(k, v);
@@ -1139,7 +1128,7 @@ function renderResinReadout(state, groups, totalKeep) {
         `Craft Condensed #1 by (then every ${formatElapsed(every)}, ${slots} in all)`,
         fmtDateTime(first),
         undefined,
-        211,
+        "condensed-resin",
       );
     }
   }
@@ -1151,7 +1140,7 @@ function renderResinReadout(state, groups, totalKeep) {
       ? `+${fmtNum(totalKeep * TRANSIENT_RESIN)} · ${totalKeep} ${totalKeep === 1 ? "copy" : "copies"}`
       : "nothing survives that long",
     totalKeep ? "good" : undefined,
-    107012,
+    "transient-resin",
   );
 
   // Whether the ceiling lands before or after the thing you're hoarding
@@ -1872,6 +1861,5 @@ setInterval(() => {
   if (TIMELINE_TABS.includes(activeTab)) calculate();
 }, 60000);
 
-document.querySelectorAll(".item-icon, .tab-icon").forEach(hideWhenBroken); // stack-reviewer-ignore: an image that already failed reads complete with naturalWidth 0, and no error event can fire mid-script; a probe with every static src broken hides them all
 calculate();
 calculateGems();
