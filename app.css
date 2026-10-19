@@ -129,6 +129,9 @@ option {
 }
 .field {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 /* Eight gem counts, each one or two digits: they pack tighter than the
    rest so a phone gets two to a row instead of eight rows. */
@@ -196,19 +199,28 @@ input[type="checkbox"] {
   border-radius: 22%;
 }
 .tab-icon {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 3.2rem;
+  height: 3.2rem;
   flex-shrink: 0;
 }
 .item-icon {
-  width: 1.7em;
-  height: 1.7em;
-  margin-right: 0.4em;
-  vertical-align: middle;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+}
+label:has(.item-icon),
+.section-title:has(.item-icon),
+.readout-key:has(.item-icon) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .section-title .item-icon {
-  width: 2em;
-  height: 2em;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+.section-title .item-icon + .item-icon {
+  margin-left: -0.25rem;
 }
 .tab {
   display: flex;
@@ -604,6 +616,10 @@ input[type="checkbox"] {
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.82rem;
+}
+.readout .readout-row:has(.item-icon) {
+  align-items: center;
+  flex-wrap: nowrap;
 }
 .readout-row:last-child {
   border-bottom: none;
