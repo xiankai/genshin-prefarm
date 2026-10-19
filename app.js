@@ -1872,6 +1872,6 @@ setInterval(() => {
   if (TIMELINE_TABS.includes(activeTab)) calculate();
 }, 60000);
 
-document.querySelectorAll(".item-icon, .tab-icon").forEach(hideWhenBroken);
+document.querySelectorAll(".item-icon, .tab-icon").forEach(hideWhenBroken); // stack-reviewer-ignore: an image that already failed reads complete with naturalWidth 0, and no error event can fire mid-script; a probe with every static src broken hides them all
 calculate();
 calculateGems();
