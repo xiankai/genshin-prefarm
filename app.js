@@ -788,10 +788,18 @@ function dayChunks(from, to) {
   return out;
 }
 
-function readoutRow(host, key, value, tone) {
+function itemIcon(id) {
+  const icon = el("img", "item-icon");
+  icon.src = `https://gi.yatta.moe/assets/UI/UI_ItemIcon_${id}.png`;
+  icon.alt = "";
+  return icon;
+}
+
+function readoutRow(host, key, value, tone, iconId) {
   const row = el("div", "readout-row");
   const k = el("span", "readout-key");
   k.textContent = key;
+  if (iconId) k.prepend(itemIcon(iconId));
   const v = el("span", tone ? `readout-val ${tone}` : "readout-val");
   v.textContent = value;
   row.append(k, v);
@@ -1119,6 +1127,8 @@ function renderResinReadout(state, groups, totalKeep) {
         resinReadout,
         `Craft Condensed #1 by (then every ${formatElapsed(every)}, ${slots} in all)`,
         fmtDateTime(first),
+        undefined,
+        211,
       );
     }
   }
@@ -1130,6 +1140,7 @@ function renderResinReadout(state, groups, totalKeep) {
       ? `+${fmtNum(totalKeep * TRANSIENT_RESIN)} · ${totalKeep} ${totalKeep === 1 ? "copy" : "copies"}`
       : "nothing survives that long",
     totalKeep ? "good" : undefined,
+    107012,
   );
 
   // Whether the ceiling lands before or after the thing you're hoarding
