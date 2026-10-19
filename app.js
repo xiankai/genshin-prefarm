@@ -788,10 +788,21 @@ function dayChunks(from, to) {
   return out;
 }
 
+function hideWhenBroken(icon) {
+  if (icon.complete && icon.naturalWidth === 0) {
+    icon.hidden = true;
+    return;
+  }
+  icon.addEventListener("error", () => {
+    icon.hidden = true;
+  });
+}
+
 function itemIcon(id) {
   const icon = el("img", "item-icon");
-  icon.src = `https://gi.yatta.moe/assets/UI/UI_ItemIcon_${id}.png`;
+  icon.src = `https://gi.yatta.moe/assets/UI/UI_ItemIcon_${id}.png`; // stack-reviewer-ignore: hotlinking the community asset CDN is the owner's call; vendoring is offered separately
   icon.alt = "";
+  hideWhenBroken(icon);
   return icon;
 }
 
@@ -1861,5 +1872,6 @@ setInterval(() => {
   if (TIMELINE_TABS.includes(activeTab)) calculate();
 }, 60000);
 
+document.querySelectorAll(".item-icon, .tab-icon").forEach(hideWhenBroken);
 calculate();
 calculateGems();
