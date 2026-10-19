@@ -8,6 +8,7 @@
   --border: #c8b898;
   --danger: #8c2020;
   --keep-text: #3a5c44;
+  --icon-tile: #3d3a4b;
 }
 .sr-only {
   position: absolute;
@@ -187,15 +188,22 @@ input[type="checkbox"] {
   gap: 0.4rem;
   margin-bottom: 1rem;
 }
+.tab-icon,
+.item-icon {
+  box-sizing: border-box;
+  padding: 0.1em;
+  background: var(--icon-tile);
+  border-radius: 22%;
+}
 .tab-icon {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.6rem;
+  height: 1.6rem;
   flex-shrink: 0;
 }
 .item-icon {
-  width: 1.4em;
-  height: 1.4em;
-  margin-right: 0.3em;
+  width: 1.7em;
+  height: 1.7em;
+  margin-right: 0.4em;
   vertical-align: middle;
 }
 .section-title .item-icon {
