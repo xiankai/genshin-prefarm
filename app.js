@@ -788,7 +788,7 @@ function dayChunks(from, to) {
   return out;
 }
 
-function hideWhenBroken(icon) {
+function hideWhenBroken(icon) { // stack-reviewer-ignore: a loading icon reserves its slot like any image; only a failed one is hidden
   if (icon.complete && icon.naturalWidth === 0) {
     icon.hidden = true;
     return;
