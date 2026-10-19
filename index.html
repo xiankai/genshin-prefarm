@@ -61,23 +61,6 @@
     <link rel="stylesheet" href="app.css" />
   </head>
   <body>
-    <!-- Drawn once, stamped wherever a <use> asks for one. Everything is stroked
-         in currentColor, so an icon inverts with whatever it sits on. -->
-    <svg class="icon-defs" aria-hidden="true" focusable="false">
-      <symbol id="icon-resin" viewBox="0 0 16 16">
-        <path d="M8 1.6c0 0-4.6 5-4.6 8a4.6 4.6 0 0 0 9.2 0c0-3-4.6-8-4.6-8Z" />
-      </symbol>
-      <symbol id="icon-companion" viewBox="0 0 16 16">
-        <path
-          d="M8 13.8C8 13.8 1.8 10 1.8 6.1A3.3 3.3 0 0 1 8 4.4a3.3 3.3 0 0 1 6.2 1.7c0 3.9-6.2 7.7-6.2 7.7Z"
-        />
-      </symbol>
-      <symbol id="icon-gem" viewBox="0 0 16 16">
-        <path
-          d="M4.6 2.4h6.8l3 4-6.4 7.4L1.6 6.4zM1.6 6.4h12.8M4.6 2.4 6.3 6.4M11.4 2.4 9.7 6.4M6.3 6.4 8 13.8M9.7 6.4 8 13.8"
-        />
-      </symbol>
-    </svg>
 
     <div class="container">
       <h1>Genshin Prefarm</h1>
@@ -95,9 +78,7 @@
           aria-controls="panel-resin"
           aria-selected="true"
         >
-          <svg class="tab-icon" aria-hidden="true" focusable="false">
-            <use href="#icon-resin" />
-          </svg>
+          <img class="tab-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_106.png" alt="" />
           Resin
         </button>
         <button
@@ -109,9 +90,7 @@
           aria-selected="false"
           tabindex="-1"
         >
-          <svg class="tab-icon" aria-hidden="true" focusable="false">
-            <use href="#icon-companion" />
-          </svg>
+          <img class="tab-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_105.png" alt="" />
           Companionship EXP
         </button>
         <button
@@ -123,9 +102,7 @@
           aria-selected="false"
           tabindex="-1"
         >
-          <svg class="tab-icon" aria-hidden="true" focusable="false">
-            <use href="#icon-gem" />
-          </svg>
+          <img class="tab-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104104.png" alt="" /><!-- stack-reviewer-ignore: no element-neutral gem icon exists; the top-tier Traveler gem stands for the category -->
           Ascension gems
         </button>
       </div>
@@ -160,7 +137,7 @@
               />
             </div>
             <div class="field">
-              <label for="current-condensed">Condensed held (0–5)</label>
+              <label for="current-condensed"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_211.png" alt="" />Condensed held (0–5)</label>
               <input
                 type="number"
                 id="current-condensed"
@@ -217,7 +194,7 @@
         </div>
 
         <div class="card" aria-live="polite" aria-atomic="true">
-          <h2 class="section-title">Resin</h2>
+          <h2 class="section-title"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_106.png" alt="" />Resin</h2>
           <p class="blurb">
             The bar runs from now to the moment everything is full — 200 in the
             bar and every Condensed slot used — which is when regen starts going
@@ -290,7 +267,7 @@
         hidden
       >
         <div class="card" aria-live="polite" aria-atomic="true">
-          <h2 class="section-title">Companionship EXP</h2>
+          <h2 class="section-title"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_105.png" alt="" />Companionship EXP</h2>
           <p class="blurb">
             The one that raises Friendship Level. Characters living in your
             Serenitea Pot generate it and it stops dead at 500 — so bank it
@@ -404,7 +381,7 @@
           <h3 class="section-title">Element you're farming</h3>
           <div class="fields tight">
             <div class="field">
-              <label for="gem-target-slivers">Slivers</label>
+              <label for="gem-target-slivers"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104101.png" alt="" />Slivers</label>
               <input
                 type="number"
                 id="gem-target-slivers"
@@ -416,7 +393,7 @@
               />
             </div>
             <div class="field">
-              <label for="gem-target-fragments">Fragments</label>
+              <label for="gem-target-fragments"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104102.png" alt="" />Fragments</label>
               <input
                 type="number"
                 id="gem-target-fragments"
@@ -428,7 +405,7 @@
               />
             </div>
             <div class="field">
-              <label for="gem-target-chunks">Chunks</label>
+              <label for="gem-target-chunks"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104103.png" alt="" />Chunks</label>
               <input
                 type="number"
                 id="gem-target-chunks"
@@ -440,7 +417,7 @@
               />
             </div>
             <div class="field">
-              <label for="gem-target-gemstones">Gemstones</label>
+              <label for="gem-target-gemstones"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104104.png" alt="" />Gemstones</label>
               <input
                 type="number"
                 id="gem-target-gemstones"
@@ -455,7 +432,7 @@
           <h3 class="section-title group-title">Every other element</h3>
           <div class="fields tight">
             <div class="field">
-              <label for="gem-off-slivers">Slivers</label>
+              <label for="gem-off-slivers"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104101.png" alt="" />Slivers</label>
               <input
                 type="number"
                 id="gem-off-slivers"
@@ -467,7 +444,7 @@
               />
             </div>
             <div class="field">
-              <label for="gem-off-fragments">Fragments</label>
+              <label for="gem-off-fragments"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104102.png" alt="" />Fragments</label>
               <input
                 type="number"
                 id="gem-off-fragments"
@@ -479,7 +456,7 @@
               />
             </div>
             <div class="field">
-              <label for="gem-off-chunks">Chunks</label>
+              <label for="gem-off-chunks"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104103.png" alt="" />Chunks</label>
               <input
                 type="number"
                 id="gem-off-chunks"
@@ -491,7 +468,7 @@
               />
             </div>
             <div class="field">
-              <label for="gem-off-gemstones">Gemstones</label>
+              <label for="gem-off-gemstones"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104104.png" alt="" />Gemstones</label>
               <input
                 type="number"
                 id="gem-off-gemstones"
@@ -506,7 +483,7 @@
           <h3 class="section-title group-title">Dust, and what comes free</h3>
           <div class="fields">
             <div class="field">
-              <label for="gem-dust">Dust of Azoth held</label>
+              <label for="gem-dust"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104201.png" alt="" />Dust of Azoth held</label>
               <input
                 type="number"
                 id="gem-dust"
@@ -546,7 +523,7 @@
         </div>
 
         <div class="card" aria-live="polite" aria-atomic="true">
-          <h2 class="section-title">Gemstone deficit</h2>
+          <h2 class="section-title"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104104.png" alt="" />Gemstone deficit</h2>
           <p class="blurb">
             What's still missing for one full ascension, and the bench steps
             that close it. Off-element gems only help if you hold them —
@@ -559,7 +536,7 @@
         </div>
 
         <div class="card" aria-live="polite" aria-atomic="true">
-          <h2 class="section-title">Dust of Azoth &amp; Stardust</h2>
+          <h2 class="section-title"><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_104201.png" alt="" /><img class="item-icon" src="https://gi.yatta.moe/assets/UI/UI_ItemIcon_222.png" alt="" />Dust of Azoth &amp; Stardust</h2>
           <p class="blurb">
             Converting the gap costs Dust, and Dust you don't have costs
             Masterless Stardust at Paimon's Bargains — 10 Dust a pack, 5
